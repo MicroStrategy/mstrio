@@ -42,6 +42,6 @@ conn.update_dataset(data_frame=df, dataset_id=newDatasetId, table_name='Ages', u
 ```
 
 #### More resources
-- [Check out mstrio for R](www.google.com)
+- [Check out mstrio for Python](https://github.com/MicroStrategy/mstrio-py)
 - [Learn more about the MicroStrategy REST API](https://lw.microstrategy.com/msdz/MSDL/GARelease_Current/docs/projects/RESTSDK/Content/topics/REST_API/REST_API.htm)
 - [MicroStrategy REST API Demo environment](https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html)
