@@ -10,7 +10,7 @@ Create a connection object using `connect_mstr()`.  Required arguments for the `
 
 ```R
 library(mstrio)
-conn = connect_mstr(base_url="https://acmeinc.mstr.com/MicroStrategyLibrary/api, username="myUsername", password="myPassword", project_name="Acme, Inc. Analytics")
+conn = connect_mstr(base_url="https://acmeinc.mstr.com/MicroStrategyLibrary/api", username="myUsername", password="myPassword", project_name="Acme, Inc. Analytics")
 ```
 The URL for the REST API server typically follows this format: _https://mstrEnvironment.com/MicroStrategyLibrary/api_. Validate that the REST API server is running by accessing _https://mstrEnvironment.com/MicroStrategyLibrary/api-docs_ in your web browser.
 
@@ -42,6 +42,6 @@ conn.update_dataset(data_frame=df, dataset_id=newDatasetId, table_name='Ages', u
 ```
 
 #### More resources
-- [Check out mstrio for R](www.google.com)
+- [Check out mstrio for Python](https://github.com/MicroStrategy/mstrio-py)
 - [Learn more about the MicroStrategy REST API](https://lw.microstrategy.com/msdz/MSDL/GARelease_Current/docs/projects/RESTSDK/Content/topics/REST_API/REST_API.htm)
 - [MicroStrategy REST API Demo environment](https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html)
