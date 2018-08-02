@@ -1,7 +1,7 @@
 Package: mstrio
 Type: Package
 Title: R Interface for the MicroStrategy REST API
-Version: 10.11
+Version: 10.11.0
 Author: Scott Rigney
 Maintainer: Scott Rigney <srigney@microstrategy.com>
 Description: This package provides a high-level interface for the MicroStrategy REST API. It enables users to create cubes from data frames in R, as well as extract data from pre-existing cubes and reports in MicroStrategy as data frames.
