@@ -13,6 +13,8 @@ library(devtools)
 install_github("microstrategy/mstrio")
 ```
 
+### Getting started
+
 Create a connection object using `connect_mstr()`.  Required arguments for the `microstrategy.Connection()` class are the URL for the MicroStrategy REST API server, username, password, and project name. By default, the `connect()` function expects your MicroStrategy username and password. LDAP authentication is supported, too. Use the optional argument `login_mode=16` to the `connect()` function.
 
 ```R
