@@ -6,6 +6,13 @@ mstrio provides a high-level R interface that's designed to give data scientists
 With mstrio, it's easy to extract business data from MicroStrategy and use it to train machine learning models or do data science in the tool of your choice. When you're done, enable decision-makers to take action on your insights by pushing new data into the environment.
 
 
+#### Install from GitHub
+```
+install.packages("devtools")
+library(devtools)
+install_github("microstrategy/mstrio")
+```
+
 Create a connection object using `connect_mstr()`.  Required arguments for the `microstrategy.Connection()` class are the URL for the MicroStrategy REST API server, username, password, and project name. By default, the `connect()` function expects your MicroStrategy username and password. LDAP authentication is supported, too. Use the optional argument `login_mode=16` to the `connect()` function.
 
 ```R
