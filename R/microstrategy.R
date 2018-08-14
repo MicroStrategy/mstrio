@@ -9,8 +9,9 @@
 
 # TODO: Add validity check to connection object before making requests and optionally extend session token
 
-
-
+#' @title Connection class
+#'
+#' @description Base S4 class object containing connection parameters
 #' @slot username Username
 #' @slot password Password
 #' @slot base_url URL for the REST API server
@@ -20,6 +21,7 @@
 #' @slot ssl_verify Default TRUE. Attempts to verify SSL certificates with each request.
 #' @slot auth_token Token provided by the I-Server after a successful log in.
 #' @slot cookies Cookies returned by the I-Server after a successful log in.
+#' @rdname connection-class
 #' @exportClass connection
 .connection <- setClass("connection",
                         slots = c(username = 'character',
@@ -94,10 +96,10 @@ connect_mstr <- function(base_url, username, password, project_name, login_mode=
   con
 }
 
-
-
+# TODO: Document internal-only (non-exported) function and method
 setGeneric("connect", function(connection) standardGeneric("connect"))
 
+# TODO: Document internal-only (non-exported) function and method
 setMethod("connect", "connection", function(connection){
 
   # Create session
@@ -123,14 +125,15 @@ setMethod("connect", "connection", function(connection){
 #'
 #' @description Closes a connection with MicroStrategy REST API.
 #' @param connection MicroStrategy REST API connection object returned by \code{connect_mstr()}
+#' @name close
 #' @rdname close
 #' @examples
 #' \dontrun{
 #' # Connect to a MicroStrategy environment
 #' con <- connect_mstr(base_url = "https://mstr.acme.com/MicroStrategyLibrary/api",
-#'                   username = "user",
-#'                   password = "password",
-#'                   project_name = "Financial Reporting")
+#'                     username = "user",
+#'                     password = "password",
+#'                     project_name = "Financial Reporting")
 #'
 #' # A good practice is to disconnect once you're done
 #' # However, the server will disconnect the session after some time has passed
@@ -139,8 +142,7 @@ setMethod("connect", "connection", function(connection){
 #' @export close
 setGeneric("close", function(connection) standardGeneric("close"))
 
-#' @rdname close-methods
-#' @aliases close,close-connection
+#' @rdname close
 setMethod("close", "connection", function(connection){
 
   # Terminate the connection
@@ -157,9 +159,10 @@ setMethod("close", "connection", function(connection){
 })
 
 
-
+# TODO: Document internal-only (non-exported) function and method
 setGeneric("select_project", function(connection) standardGeneric("select_project"))
 
+# TODO: Document internal-only (non-exported) function and method
 setMethod("select_project", "connection", function(connection){
 
   response <- projects(connection=connection)
@@ -230,8 +233,7 @@ setMethod("select_project", "connection", function(connection){
 #' @export get_report
 setGeneric("get_report", function(connection, report_id, offset=0, limit=1000) standardGeneric("get_report"))
 
-#' @rdname get_report-methods
-#' @aliases get_report,get_report-connection
+#' @rdname get_report
 setMethod("get_report", "connection", function(connection, report_id, offset=0, limit=1000){
 
   # Basic error checking
@@ -318,8 +320,7 @@ setMethod("get_report", "connection", function(connection, report_id, offset=0, 
 #' @export get_cube
 setGeneric("get_cube", function(connection, cube_id, offset=0, limit=1000) standardGeneric("get_cube"))
 
-#' @rdname get_cube-methods
-#' @aliases get_cube,get_cube-connection
+#' @rdname get_cube
 setMethod("get_cube", "connection", function(connection, cube_id, offset=0, limit=1000){
 
   # Basic error checking
@@ -422,8 +423,7 @@ setMethod("get_cube", "connection", function(connection, cube_id, offset=0, limi
 #' @export create_dataset
 setGeneric("create_dataset", function(connection, data_frame, dataset_name, table_name, to_metric=NULL, to_attribute=NULL) standardGeneric("create_dataset"))
 
-#' @rdname create_dataset-methods
-#' @aliases create_dataset,create_dataset-connection
+#' @rdname create_dataset
 setMethod("create_dataset", "connection", function(connection, data_frame, dataset_name, table_name, to_metric=NULL, to_attribute=NULL){
 
   # Basic error checking for input types
@@ -558,8 +558,7 @@ setMethod("create_dataset", "connection", function(connection, data_frame, datas
 #' @export update_dataset
 setGeneric("update_dataset", function(connection, data_frame, dataset_id, table_id, table_name, update_policy) standardGeneric("update_dataset"))
 
-#' @rdname update_dataset-methods
-#' @aliases update_dataset,update_dataset-connection
+#' @rdname update_dataset
 setMethod("update_dataset", "connection", function(connection, data_frame, dataset_id, table_name, update_policy){
 
   # TODO: Implement table_id or table_name
