@@ -26,7 +26,7 @@ library(mstrio)
 ## Connecting to the REST API server
 
 To create a connection to the MicroStrategy Intelligence Server, you'll need to obtain the address of the REST API
-server, typically following this format: https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api. To validate that the REST API server is running, in your web browser, visit https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs. The `connect_mstr()` function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the `connect_mstr()` function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument `login_mode=16` to the `connect_mstr()` function. `connect_mstr()` returns a list of environment connection information; this data is used in all subsequent requests to the API server.
+server, typically following this format: `https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api`. To validate that the REST API server is running, in your web browser, visit `https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs`. The `connect_mstr()` function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the `connect_mstr()` function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument `login_mode=16` to the `connect_mstr()` function. `connect_mstr()` returns a list of environment connection information; this data is used in all subsequent requests to the API server.
 
 ```{r tidy=TRUE}
 library(mstrio)
