@@ -12,7 +12,7 @@
 
 <meta name="author" content="Scott Rigney" />
 
-<meta name="date" content="2018-07-20" />
+<meta name="date" content="2018-08-14" />
 
 <title>MicroStrategy REST API interface for R</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">MicroStrategy REST API interface for R</h1>
 <h4 class="author"><em>Scott Rigney</em></h4>
-<h4 class="date"><em>2018-07-20</em></h4>
+<h4 class="date"><em>2018-08-14</em></h4>
 
 
 
@@ -85,7 +85,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="connecting-to-the-rest-api-server" class="section level2">
 <h2>Connecting to the REST API server</h2>
-<p>To create a connection to the MicroStrategy Intelligence Server, you’ll need to obtain the address of the REST API server, typically following this format: <a href="https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api" class="uri">https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api</a>. To validate that the REST API server is running, in your web browser, visit <a href="https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs" class="uri">https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs</a>. The <code>connect_mstr()</code> function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the <code>connect_mstr()</code> function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument <code>login_mode=16</code> to the <code>connect_mstr()</code> function. <code>connect_mstr()</code> returns a list of environment connection information; this data is used in all subsequent requests to the API server.</p>
+<p>To create a connection to the MicroStrategy Intelligence Server, you’ll need to obtain the address of the REST API server, typically following this format: <code>https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api</code>. To validate that the REST API server is running, in your web browser, visit <code>https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs</code>. The <code>connect_mstr()</code> function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the <code>connect_mstr()</code> function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument <code>login_mode=16</code> to the <code>connect_mstr()</code> function. <code>connect_mstr()</code> returns a list of environment connection information; this data is used in all subsequent requests to the API server.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(mstrio)
 
 conn &lt;-<span class="st"> </span><span class="kw">connect_mstr</span>(<span class="dt">base_url =</span> <span class="st">&quot;https://env-93760.customer.cloud.microstrategy.com/MicroStrategyLibrary/api&quot;</span>, 
@@ -274,7 +274,7 @@ newcube</code></pre></div>
 ## [1] &quot;IRIS_Upload&quot;
 ## 
 ## $tableID
-## [1] &quot;F0DA8168164B922BE721537210898476&quot;</code></pre>
+## [1] &quot;F0DA8168165399BF2FA5543347114255&quot;</code></pre>
 </div>
 <div id="adding-or-modifying-data-in-a-cube" class="section level2">
 <h2>Adding or modifying data in a cube</h2>
