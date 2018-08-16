@@ -1,10 +1,10 @@
 Package: mstrio
 Type: Package
-Title: Interface for MicroStrategy REST APIs
+Title: Interface for 'MicroStrategy' REST APIs
 Version: 10.11.0
 Author: Scott Rigney
 Maintainer: Scott Rigney <srigney@microstrategy.com>
-Description: Interface for creating data sets and extracting data through the MicroStrategy REST APIs.
+Description: Interface for creating data sets and extracting data through the 'MicroStrategy' REST APIs. Access the demo API at <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>.
 License: Apache License 2.0 | file LICENSE
 Encoding: UTF-8
 LazyData: true
