@@ -21,7 +21,7 @@ Create a connection object using `connect_mstr()`.  Required arguments for the `
 library(mstrio)
 conn = connect_mstr(base_url="https://acmeinc.mstr.com/MicroStrategyLibrary/api", username="myUsername", password="myPassword", project_name="Acme, Inc. Analytics")
 ```
-The URL for the REST API server typically follows this format: _https://mstrEnvironment.com/MicroStrategyLibrary/api_. Validate that the REST API server is running by accessing _https://mstrEnvironment.com/MicroStrategyLibrary/api-docs_ in your web browser.
+The URL for the REST API server typically follows this format: `https://mstrEnvironment.com/MicroStrategyLibrary/api`. Validate that the REST API server is running by accessing `https://mstrEnvironment.com/MicroStrategyLibrary/api-docs` in your web browser.
 
 
 #### Extract data from cubes and reports
