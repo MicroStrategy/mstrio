@@ -31,7 +31,7 @@ data and inserts new rows), 'replace' (similar to truncate and load, replaces th
 Updates a previously created MicroStrategy dataset with an R Data.Frame.
 }
 \examples{
-\dontrun{
+\donttest{
 df <- iris
 
 # Create a primary key

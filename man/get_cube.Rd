@@ -31,7 +31,7 @@ R Data.Frame containing the cube contents
 Extracts the contents of a MicroStrategy cube into a R Data.Frame
 }
 \examples{
-\dontrun{
+\donttest{
 # Extract the contents of a cube into an R Data.Frame
 my_cube <- get_cube(connection = conn,
                     cube_id = "5E2501A411E8756818A50080EF4524C9")

@@ -37,7 +37,7 @@ Unique identifiers of the dataset and table within the newly created dataset. Re
 Creates an in-memory dataset from an R Data.Frame.
 }
 \examples{
-\dontrun{
+\donttest{
 df <- iris
 
 # Create a primary key

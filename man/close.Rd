@@ -17,9 +17,9 @@ close(connection)
 Closes a connection with MicroStrategy REST API.
 }
 \examples{
-\dontrun{
+\donttest{
 # Connect to a MicroStrategy environment
-con <- connect_mstr(base_url = "https://mstr.acme.com/MicroStrategyLibrary/api",
+con <- connect_mstr(base_url = "https://demo.microstrategy.com/MicroStrategyLibrary/api",
                     username = "user",
                     password = "password",
                     project_name = "Financial Reporting")
