@@ -38,7 +38,7 @@
 #' @title Create a MicroStrategy REST API connection
 #'
 #' @description Establishes and creates a connection with the MicroStrategy REST API.
-#' @param base_url URL of the MicroStrategy REST API server. Typically of the form \code{https://<mstr_env>.com/MicroStrategyLibrary/api}
+#' @param base_url URL of the MicroStrategy REST API server
 #' @param username Username
 #' @param password Password
 #' @param project_name Name of the project you intend to connect to. Case-sensitive
@@ -49,9 +49,9 @@
 #' @name connect_mstr
 #' @rdname connect_mstr
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Connect to a MicroStrategy environment
-#' con <- connect_mstr(base_url = "https://mstr.acme.com/MicroStrategyLibrary/api",
+#' con <- connect_mstr(base_url = "https://demo.microstrategy.com/MicroStrategyLibrary/api",
 #'                     username = "user",
 #'                     password = "password",
 #'                     project_name = "Financial Reporting")
@@ -128,9 +128,9 @@ setMethod("connect", "connection", function(connection){
 #' @name close
 #' @rdname close
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Connect to a MicroStrategy environment
-#' con <- connect_mstr(base_url = "https://mstr.acme.com/MicroStrategyLibrary/api",
+#' con <- connect_mstr(base_url = "https://demo.microstrategy.com/MicroStrategyLibrary/api",
 #'                     username = "user",
 #'                     password = "password",
 #'                     project_name = "Financial Reporting")
@@ -212,7 +212,7 @@ setMethod("select_project", "connection", function(connection){
 #' @name get_report
 #' @rdname get_report
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Extract the contents of a report into an R Data.Frame
 #' my_report <- get_report(connection = conn,
 #'                         report_id = "5E2501A411E8756818A50080EF4524C9")
@@ -299,7 +299,7 @@ setMethod("get_report", "connection", function(connection, report_id, offset=0, 
 #' @name get_cube
 #' @rdname get_cube
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Extract the contents of a cube into an R Data.Frame
 #' my_cube <- get_cube(connection = conn,
 #'                     cube_id = "5E2501A411E8756818A50080EF4524C9")
@@ -389,7 +389,7 @@ setMethod("get_cube", "connection", function(connection, cube_id, offset=0, limi
 #' @name create_dataset
 #' @rdname create_dataset
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' df <- iris
 #'
 #' # Create a primary key
@@ -491,7 +491,7 @@ setMethod("create_dataset", "connection", function(connection, data_frame, datas
 #' @name update_dataset
 #' @rdname update_dataset
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' df <- iris
 #'
 #' # Create a primary key
