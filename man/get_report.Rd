@@ -31,7 +31,7 @@ R Data.Frame containing the report contents
 Extracts the contents of a MicroStrategy report into a R Data.Frame
 }
 \examples{
-\dontrun{
+\donttest{
 # Extract the contents of a report into an R Data.Frame
 my_report <- get_report(connection = conn,
                         report_id = "5E2501A411E8756818A50080EF4524C9")

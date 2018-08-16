@@ -8,7 +8,7 @@ connect_mstr(base_url, username, password, project_name, login_mode = 1,
   ssl_verify = TRUE)
 }
 \arguments{
-\item{base_url}{URL of the MicroStrategy REST API server. Typically of the form \code{https://<mstr_env>.com/MicroStrategyLibrary/api}}
+\item{base_url}{URL of the MicroStrategy REST API server}
 
 \item{username}{Username}
 
@@ -28,9 +28,9 @@ A connection object to use in subsequent requests
 Establishes and creates a connection with the MicroStrategy REST API.
 }
 \examples{
-\dontrun{
+\donttest{
 # Connect to a MicroStrategy environment
-con <- connect_mstr(base_url = "https://mstr.acme.com/MicroStrategyLibrary/api",
+con <- connect_mstr(base_url = "https://demo.microstrategy.com/MicroStrategyLibrary/api",
                     username = "user",
                     password = "password",
                     project_name = "Financial Reporting")
