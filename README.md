@@ -6,11 +6,9 @@ mstrio provides a high-level R interface that's designed to give data scientists
 With mstrio, it's easy to extract business data from MicroStrategy and use it to train machine learning models or do data science in the tool of your choice. When you're done, enable decision-makers to take action on your insights by pushing new data into the environment.
 
 
-#### Install from GitHub
+#### Install from CRAN
 ```
-install.packages("devtools")
-library(devtools)
-install_github("microstrategy/mstrio")
+install.packages("mstrio")
 ```
 
 ### Getting started
@@ -19,7 +17,7 @@ Create a connection object using `connect_mstr()`.  Required arguments for the `
 
 ```R
 library(mstrio)
-conn = connect_mstr(base_url="https://acmeinc.mstr.com/MicroStrategyLibrary/api", username="myUsername", password="myPassword", project_name="Acme, Inc. Analytics")
+conn <- connect_mstr(base_url="https://acmeinc.mstr.com/MicroStrategyLibrary/api", username="myUsername", password="myPassword", project_name="Acme, Inc. Analytics")
 ```
 The URL for the REST API server typically follows this format: `https://mstrEnvironment.com/MicroStrategyLibrary/api`. Validate that the REST API server is running by accessing `https://mstrEnvironment.com/MicroStrategyLibrary/api-docs` in your web browser.
 
@@ -28,16 +26,16 @@ The URL for the REST API server typically follows this format: `https://mstrEnvi
 Extract data from MicroStrategy cubes and reports using the `get_cube()` and `get_report()` functions. Just pass in your connection object and the ID for the cube or report that you are fetching. You can get the ID by navigating to the cube within MicroStrategy Web, right-clicking on the cube of interest, and selecting 'properties.' Alternatively, you can use MicroStrategy Developer in a similar manner. `get_cube()` and `get_report()` will return a R data frame with the requested data.
 
 ```R
-cube_dataframe = get_cube(connection=conn, cube_id='E9C9D8BE11E85AD9BDBD0080EFF53CF8')
-report_dataframe = get_report(connection=conn, report_id='06D1F3A411E869C3DE670080EF259221')
+cube_dataframe <- get_cube(connection=conn, cube_id='E9C9D8BE11E85AD9BDBD0080EFF53CF8')
+report_dataframe <- get_report(connection=conn, report_id='06D1F3A411E869C3DE670080EF259221')
 ```
 
 #### Upload data to MicroStrategy
 Creating a new in-memory dataset from a R data frame is just as easy: `create_dataset()`. You'll need to provide a name for your cube and a name for the table that will contain the data. At this time, only one table per cube is supported. `create_cube()` will return the datasetID and tableIDs, in case you want to save these for later use.
 
 ```R
-df = data.frame(name=c("Bill", "Betsy", "Bailey"), age=c(45, 23, 31))
-newDatasetId, newTableId = conn.create_dataset(data_frame=df, dataset_name='Employees', table_name='Ages')
+df <- data.frame(name=c("Bill", "Betsy", "Bailey"), age=c(45, 23, 31))
+myDataset <- conn.create_dataset(data_frame=df, dataset_name='Employees', table_name='Ages')
 ```
 
 #### Add or update a dataset with new data
@@ -47,7 +45,7 @@ The `update_policy` parameter controls the update behavior. Currently supported 
 
 ```R
 df = data.frame(name=c("Brian", "Bob", "Blake"), age=c(41, 27, 34))
-conn.update_dataset(data_frame=df, dataset_id=newDatasetId, table_name='Ages', update_policy='add')
+conn.update_dataset(data_frame=df, dataset_id=myDataset$datasetID, table_name='Ages', update_policy='add')
 ```
 
 #### More resources
