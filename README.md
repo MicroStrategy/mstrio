@@ -13,7 +13,7 @@ install.packages("mstrio")
 
 ### Getting started
 
-Create a connection object using `connect_mstr()`.  Required arguments for the `microstrategy.Connection()` class are the URL for the MicroStrategy REST API server, username, password, and project name. By default, the `connect()` function expects your MicroStrategy username and password. LDAP authentication is supported, too. Use the optional argument `login_mode=16` to the `connect()` function.
+Create a connection using `connect_mstr()`.  Required arguments for the `microstrategy.Connection()` class are the URL for the MicroStrategy REST API server, username, password, and project name. By default, the `connect()` function expects your MicroStrategy username and password. LDAP authentication is supported, too. Use the optional argument `login_mode=16` to the `connect()` function.
 
 ```R
 library(mstrio)
@@ -35,7 +35,7 @@ Creating a new in-memory dataset from a R data frame is just as easy: `create_da
 
 ```R
 df <- data.frame(name=c("Bill", "Betsy", "Bailey"), age=c(45, 23, 31))
-myDataset <- conn.create_dataset(data_frame=df, dataset_name='Employees', table_name='Ages')
+myDataset <- create_dataset(connection=conn, data_frame=df, dataset_name='Employees', table_name='Ages')
 ```
 
 #### Add or update a dataset with new data
@@ -44,8 +44,8 @@ Once a dataset has been created, you can update it, too. This is helpful if the 
 The `update_policy` parameter controls the update behavior. Currently supported update operations are `add` (inserts entirely new data), `update` (updates existing data), `upsert` (simultaneously updates existing data and inserts new data), and `replace` (truncates and replaces the data).
 
 ```R
-df = data.frame(name=c("Brian", "Bob", "Blake"), age=c(41, 27, 34))
-conn.update_dataset(data_frame=df, dataset_id=myDataset$datasetID, table_name='Ages', update_policy='add')
+df <- data.frame(name=c("Brian", "Bob", "Blake"), age=c(41, 27, 34))
+update_dataset(connection=conn, data_frame=df, dataset_id=myDataset$datasetID, table_name='Ages', update_policy='add')
 ```
 
 #### More resources
