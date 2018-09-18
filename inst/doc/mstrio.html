@@ -12,7 +12,7 @@
 
 <meta name="author" content="Scott Rigney" />
 
-<meta name="date" content="2018-06-26" />
+<meta name="date" content="2018-09-13" />
 
 <title>MicroStrategy REST API interface for R</title>
 
@@ -70,12 +70,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">MicroStrategy REST API interface for R</h1>
 <h4 class="author"><em>Scott Rigney</em></h4>
-<h4 class="date"><em>2018-06-26</em></h4>
+<h4 class="date"><em>2018-09-13</em></h4>
 
 
 
 <p>The MicroStrategy REST API is a RESTful application that uses HTTP requests such as POST, GET, and DELETE. It is designed to help developers build data-driven client applications quickly and easily. It does this by providing light-weight JSON data that is easy to consume because it includes raw data without direct formatting. Developers can use the MicroStrategy REST API programmatically in their own code, or in a tool like curl.</p>
-<p>This R package was designed to give data scientists a way to extract data from MicroStrategy cubes and reports, and additionally, create new cubes in the MicroStrategy environment.</p>
+<p>This R package was designed to give data scientists a way to easily extract data from MicroStrategy cubes and reports, and create new in-memory datasets within MicroStrategy.</p>
 <div id="more-resources" class="section level3">
 <h3>More resources</h3>
 <ul>
@@ -85,208 +85,50 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="connecting-to-the-rest-api-server" class="section level2">
 <h2>Connecting to the REST API server</h2>
-<p>To create a connection to the MicroStrategy Intelligence Server, you’ll need to obtain the address of the REST API server, typically following this format: <a href="https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api" class="uri">https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api</a>. To validate that the REST API server is running, in your web browser, visit <a href="https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs" class="uri">https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs</a>. The <code>connect_mstr()</code> function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the <code>connect_mstr()</code> function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument <code>login_mode=16</code> to the <code>connect_mstr()</code> function. <code>connect_mstr()</code> returns a list of environment connection information; this data is used in all subsequent requests to the API server.</p>
+<p>To create a connection to the MicroStrategy Intelligence Server, you’ll need to obtain the address of the REST API server, typically following this format: <code>https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api</code>.</p>
+<p>To validate that the REST API server is running, in your web browser, visit <code>https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs</code>.</p>
+<p>The <code>connect_mstr()</code> function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the <code>connect_mstr()</code> function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument <code>login_mode=16</code> to the <code>connect_mstr()</code> function. <code>connect_mstr()</code> returns a list of environment connection data which is in turn used in subsequent requests to the API server.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(mstrio)
 
-base_url &lt;-<span class="st"> &quot;https://env-93760.customer.cloud.microstrategy.com/MicroStrategyLibrary/api&quot;</span>
-username &lt;-<span class="st"> &quot;mstr&quot;</span>
-password &lt;-<span class="st"> &quot;C7IdyxKLEcgA&quot;</span>
-project_name &lt;-<span class="st"> &quot;MicroStrategy Tutorial&quot;</span>
-
-conn &lt;-<span class="st"> </span><span class="kw">connect_mstr</span>(<span class="dt">base_url =</span> base_url, <span class="dt">username =</span> username, <span class="dt">password =</span> password, 
-    <span class="dt">project_name =</span> project_name)</code></pre></div>
+conn &lt;-<span class="st"> </span><span class="kw">connect_mstr</span>(<span class="dt">base_url =</span> <span class="st">'https://demo.microstrategy.com/MicroStrategyLibrary/api'</span>, 
+                     <span class="dt">username =</span> username, 
+                     <span class="dt">password =</span> password, 
+                     <span class="dt">project_name =</span> <span class="st">'MobileDossier'</span>,
+                     <span class="dt">login_mode =</span> <span class="dv">8</span>)</code></pre></div>
 </div>
 <div id="extracting-data-from-an-existing-cube" class="section level2">
 <h2>Extracting data from an existing cube</h2>
 <p>Now that we’ve logged in, let’s get some data! We can do this with the <code>get_cube()</code> function. Provide your connection object and the identifier of the cube containing the data. You can get the ID by navigating to the cube within MicroStrategy Web, right-clicking on the cube of interest, and selecting ‘properties.’ Alternatively, you can use MicroStrategy Developer in a similar manner. <code>get_cube()</code> will return a R dataframe with the cube data.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cube_data &lt;-<span class="st"> </span><span class="kw">get_cube</span>(<span class="dt">connection =</span> conn, <span class="dt">cube_id =</span> <span class="st">'5E2501A411E8756818A50080EF4524C9'</span>)
-knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(cube_data))</code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="left">Species</th>
-<th align="left">integer_attribute</th>
-<th align="left">Petal_Length</th>
-<th align="left">Petal_Width</th>
-<th align="left">Row Count - IRIS_Upload</th>
-<th align="left">Sepal_Length</th>
-<th align="left">Sepal_Width</th>
-<th align="left">integer_metric</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">setosa</td>
-<td align="left">1</td>
-<td align="left">1.4</td>
-<td align="left">0.2</td>
-<td align="left">1</td>
-<td align="left">5.1</td>
-<td align="left">3.5</td>
-<td align="left">1</td>
-</tr>
-<tr class="even">
-<td align="left">setosa</td>
-<td align="left">2</td>
-<td align="left">1.4</td>
-<td align="left">0.2</td>
-<td align="left">1</td>
-<td align="left">4.9</td>
-<td align="left">3</td>
-<td align="left">2</td>
-</tr>
-<tr class="odd">
-<td align="left">setosa</td>
-<td align="left">3</td>
-<td align="left">1.3</td>
-<td align="left">0.2</td>
-<td align="left">1</td>
-<td align="left">4.7</td>
-<td align="left">3.2</td>
-<td align="left">3</td>
-</tr>
-<tr class="even">
-<td align="left">setosa</td>
-<td align="left">4</td>
-<td align="left">1.5</td>
-<td align="left">0.2</td>
-<td align="left">1</td>
-<td align="left">4.6</td>
-<td align="left">3.1</td>
-<td align="left">4</td>
-</tr>
-<tr class="odd">
-<td align="left">setosa</td>
-<td align="left">5</td>
-<td align="left">1.4</td>
-<td align="left">0.2</td>
-<td align="left">1</td>
-<td align="left">5</td>
-<td align="left">3.6</td>
-<td align="left">5</td>
-</tr>
-<tr class="even">
-<td align="left">setosa</td>
-<td align="left">6</td>
-<td align="left">1.7</td>
-<td align="left">0.4</td>
-<td align="left">1</td>
-<td align="left">5.4</td>
-<td align="left">3.9</td>
-<td align="left">6</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cube_data &lt;-<span class="st"> </span><span class="kw">get_cube</span>(<span class="dt">connection =</span> conn, <span class="dt">cube_id =</span> <span class="st">'5E2501A411E8756818A50080EF4524C9'</span>)</code></pre></div>
 </div>
 <div id="extracting-data-from-an-existing-report" class="section level2">
 <h2>Extracting data from an existing report</h2>
 <p>If the data we need is contained in a report, we can extract it using <code>get_report()</code>. Like <code>get_cube()</code>, this will return a dataframe containing the data from all rows.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">report_data &lt;-<span class="st"> </span><span class="kw">get_report</span>(<span class="dt">connection =</span> conn, <span class="dt">report_id =</span> <span class="st">'873CD58E11E8772BA1CD0080EF05B984'</span>)
-knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(cube_data))</code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="left">Species</th>
-<th align="left">integer_attribute</th>
-<th align="left">Petal_Length</th>
-<th align="left">Petal_Width</th>
-<th align="left">Row Count - IRIS_Upload</th>
-<th align="left">Sepal_Length</th>
-<th align="left">Sepal_Width</th>
-<th align="left">integer_metric</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">setosa</td>
-<td align="left">1</td>
-<td align="left">1.4</td>
-<td align="left">0.2</td>
-<td align="left">1</td>
-<td align="left">5.1</td>
-<td align="left">3.5</td>
-<td align="left">1</td>
-</tr>
-<tr class="even">
-<td align="left">setosa</td>
-<td align="left">2</td>
-<td align="left">1.4</td>
-<td align="left">0.2</td>
-<td align="left">1</td>
-<td align="left">4.9</td>
-<td align="left">3</td>
-<td align="left">2</td>
-</tr>
-<tr class="odd">
-<td align="left">setosa</td>
-<td align="left">3</td>
-<td align="left">1.3</td>
-<td align="left">0.2</td>
-<td align="left">1</td>
-<td align="left">4.7</td>
-<td align="left">3.2</td>
-<td align="left">3</td>
-</tr>
-<tr class="even">
-<td align="left">setosa</td>
-<td align="left">4</td>
-<td align="left">1.5</td>
-<td align="left">0.2</td>
-<td align="left">1</td>
-<td align="left">4.6</td>
-<td align="left">3.1</td>
-<td align="left">4</td>
-</tr>
-<tr class="odd">
-<td align="left">setosa</td>
-<td align="left">5</td>
-<td align="left">1.4</td>
-<td align="left">0.2</td>
-<td align="left">1</td>
-<td align="left">5</td>
-<td align="left">3.6</td>
-<td align="left">5</td>
-</tr>
-<tr class="even">
-<td align="left">setosa</td>
-<td align="left">6</td>
-<td align="left">1.7</td>
-<td align="left">0.4</td>
-<td align="left">1</td>
-<td align="left">5.4</td>
-<td align="left">3.9</td>
-<td align="left">6</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">report_data &lt;-<span class="st"> </span><span class="kw">get_report</span>(<span class="dt">connection =</span> conn, <span class="dt">report_id =</span> <span class="st">'873CD58E11E8772BA1CD0080EF05B984'</span>)</code></pre></div>
 </div>
 <div id="creating-a-new-cube" class="section level2">
 <h2>Creating a new cube</h2>
 <p>You can create a new in-memory cube from a dataframe in R. This is accomplished with the <code>create_dataset()</code> function. You’ll need to specify a name for your cube and a name for the table that will contain the data. At this time, only one table per cube is supported. <code>create_dataset()</code> will return the datasetID and tableIDs, in case you want to save these for later use.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dat &lt;-<span class="st"> </span>iris[<span class="dv">1</span><span class="op">:</span><span class="dv">50</span>, ]
-<span class="kw">names</span>(dat) &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;[[:punct:]]&quot;</span>, <span class="st">&quot;_&quot;</span>, <span class="kw">names</span>(dat))  ## mstr doesn't permit &quot;.&quot; in column name
-dat<span class="op">$</span>ID &lt;-<span class="st"> </span><span class="kw">row.names</span>(dat)
+
+<span class="co"># note: column names in MicroStrategy cannot have a period (&quot;.&quot;)</span>
+<span class="kw">names</span>(dat) &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;[[:punct:]]&quot;</span>, <span class="st">&quot;_&quot;</span>, <span class="kw">names</span>(dat))
+
+<span class="co"># this creates the dataset, and returns the dataset ID and table ID which you'll use to update the dataset later</span>
 newcube &lt;-<span class="st"> </span><span class="kw">create_dataset</span>(<span class="dt">connection =</span> conn,
                           <span class="dt">data_frame =</span> dat, 
                           <span class="dt">dataset_name =</span> <span class="st">&quot;IRIS_Upload&quot;</span>, 
-                          <span class="dt">table_name =</span> <span class="st">&quot;IRIS_Upload&quot;</span>,
-                          <span class="dt">to_attribute =</span> <span class="kw">c</span>(<span class="st">'ID'</span>))
-newcube</code></pre></div>
-<pre><code>## $datasetID
-## [1] &quot;5B377E7A11E879663BEE0080EFA56D5A&quot;
-## 
-## $name
-## [1] &quot;IRIS_Upload&quot;
-## 
-## $tableID
-## [1] &quot;F0DA81681643D6D71641806355F95778&quot;</code></pre>
+                          <span class="dt">table_name =</span> <span class="st">&quot;IRIS_Upload&quot;</span>)</code></pre></div>
 </div>
 <div id="adding-or-modifying-data-in-a-cube" class="section level2">
 <h2>Adding or modifying data in a cube</h2>
 <p>You can also modify data within a cube. This is helpful if the data changes from day to day and you wish to add new data to a pre-existing cube for analysis in MicroStrategy. To accomplish this, use the <code>update_dataset()</code> function. Note that you’ll need to pass in both the datasetID and tableID for the target cube and target table within the cube, respectively. These parameters are returned by the <code>create_dataset()</code> function. The <code>updatePolicy</code> parameter controls the update behavior. Currently supported update operations are <code>add</code>, <code>update</code>, <code>upsert</code>, and <code>replace</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dat &lt;-<span class="st"> </span>iris[<span class="dv">51</span><span class="op">:</span><span class="dv">150</span>, ]
-<span class="kw">names</span>(dat) &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;[[:punct:]]&quot;</span>, <span class="st">&quot;_&quot;</span>, <span class="kw">names</span>(dat))  ## mstr doesn't permit &quot;.&quot; in column name
-dat<span class="op">$</span>ID &lt;-<span class="st"> </span><span class="kw">row.names</span>(dat)
+
+<span class="co"># note: column names in MicroStrategy cannot have a period (&quot;.&quot;)</span>
+<span class="kw">names</span>(dat) &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;[[:punct:]]&quot;</span>, <span class="st">&quot;_&quot;</span>, <span class="kw">names</span>(dat))
+
+<span class="co"># this adds new data to the previously created dataset</span>
 <span class="kw">update_dataset</span>(<span class="dt">connection =</span> conn,
                <span class="dt">data_frame =</span> dat,
                <span class="dt">dataset_id =</span> newcube<span class="op">$</span>datasetID,
@@ -297,24 +139,21 @@ dat<span class="op">$</span>ID &lt;-<span class="st"> </span><span class="kw">ro
 <h2>Mapping R data types to MicroStrategy metrics and attributes</h2>
 <p>When creating a cube from a R dataframe, numeric columns (e.g. double, numeric, integer) are treated as <em>metrics</em> and non-numeric columns (e.g. strings, factors, date and time stamps) are treated as <em>attributes</em>. To override this default and specify columns to create specifically as an attribute or metric, an example being an integer that’s used as an attribute to join or link two data sets, you can provide a vector of metrics and attributes in the <code>to_attribue</code> and <code>to_metric</code> parameters.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dat &lt;-<span class="st"> </span>iris
-<span class="kw">names</span>(dat) &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;[[:punct:]]&quot;</span>, <span class="st">&quot;_&quot;</span>, <span class="kw">names</span>(dat))  ## mstr doesn't like &quot;.&quot; in column name
 
+<span class="co"># note: column names in MicroStrategy cannot have a period (&quot;.&quot;)</span>
+<span class="kw">names</span>(dat) &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;[[:punct:]]&quot;</span>, <span class="st">&quot;_&quot;</span>, <span class="kw">names</span>(dat))
+
+<span class="co"># create two new columns - one formatted as a numeric, and another formatted as a string</span>
 dat<span class="op">$</span>integer_attribute &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">row.names</span>(dat))
 dat<span class="op">$</span>integer_metric &lt;-<span class="st"> </span><span class="kw">row.names</span>(dat)
-<span class="kw">str</span>(dat)</code></pre></div>
-<pre><code>## 'data.frame':    150 obs. of  7 variables:
-##  $ Sepal_Length     : num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
-##  $ Sepal_Width      : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
-##  $ Petal_Length     : num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
-##  $ Petal_Width      : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
-##  $ Species          : Factor w/ 3 levels &quot;setosa&quot;,&quot;versicolor&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ integer_attribute: int  1 2 3 4 5 6 7 8 9 10 ...
-##  $ integer_metric   : chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">newcube &lt;-<span class="st"> </span><span class="kw">create_dataset</span>(<span class="dt">connection =</span> conn, 
+
+<span class="co"># create a new cube, but this time, specifically instructs MicroStrategy to reflect these two new columns as a metric and attribute, respectively</span>
+<span class="co"># you can map multiple columns at once with to_metric = c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;)</span>
+newcube &lt;-<span class="st"> </span><span class="kw">create_dataset</span>(<span class="dt">connection =</span> conn, 
                           <span class="dt">data_frame =</span> dat, 
                           <span class="dt">dataset_name =</span> <span class="st">&quot;IRIS&quot;</span>, 
                           <span class="dt">table_name =</span> <span class="st">&quot;IRIS_Upload&quot;</span>,
-                          <span class="dt">to_metric =</span> <span class="kw">c</span>(<span class="st">&quot;integer_metric&quot;</span>), 
+                          <span class="dt">to_metric =</span> <span class="kw">c</span>(<span class="st">&quot;integer_metric&quot;</span>),
                           <span class="dt">to_attribute =</span> <span class="kw">c</span>(<span class="st">&quot;integer_attribute&quot;</span>))</code></pre></div>
 </div>
 <div id="ending-the-session" class="section level2">

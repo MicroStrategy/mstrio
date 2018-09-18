@@ -9,6 +9,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include=FALSE}
+library(mstrio)
+```
+
+
 The MicroStrategy REST API is a RESTful application that uses HTTP requests such as POST, GET, and DELETE. It is designed to help developers build data-driven client applications quickly and easily. It does this by providing light-weight JSON data that is easy to consume because it includes raw data without direct formatting. Developers can use the MicroStrategy REST API programmatically in their own code, or in a tool like curl.
 
 This R package was designed to give data scientists a way to easily extract data from MicroStrategy cubes and reports, and create new in-memory datasets within MicroStrategy.
@@ -18,67 +23,76 @@ This R package was designed to give data scientists a way to easily extract data
 - [Learn more about the MicroStrategy REST API](https://lw.microstrategy.com/msdz/MSDL/GARelease_Current/docs/projects/RESTSDK/Content/topics/REST_API/REST_API.htm)
 - [MicroStrategy REST API Demo environment](https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html)
 
-```{r include=FALSE}
-library(knitr)
-library(mstrio)
-```
 
 ## Connecting to the REST API server
 
 To create a connection to the MicroStrategy Intelligence Server, you'll need to obtain the address of the REST API
-server, typically following this format: `https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api`. To validate that the REST API server is running, in your web browser, visit `https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs`. The `connect_mstr()` function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the `connect_mstr()` function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument `login_mode=16` to the `connect_mstr()` function. `connect_mstr()` returns a list of environment connection information; this data is used in all subsequent requests to the API server.
+server, typically following this format: `https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api`. 
 
-```{r tidy=TRUE}
+To validate that the REST API server is running, in your web browser, visit `https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs`. 
+
+The `connect_mstr()` function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the `connect_mstr()` function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument `login_mode=16` to the `connect_mstr()` function. `connect_mstr()` returns a list of environment connection data which is in turn used in subsequent requests to the API server.
+
+```{r, include=FALSE}
+username <- "demouser"
+password <- "demopass"
+```
+
+
+```{r}
 library(mstrio)
 
-conn <- connect_mstr(base_url = 'https://env-93760.customer.cloud.microstrategy.com/MicroStrategyLibrary/api', 
-                     username = 'mstr', 
-                     password = 'C7IdyxKLEcgA', 
-                     project_name = 'MicroStrategy Tutorial')
+conn <- connect_mstr(base_url = 'https://demo.microstrategy.com/MicroStrategyLibrary/api', 
+                     username = username, 
+                     password = password, 
+                     project_name = 'MobileDossier',
+                     login_mode = 8)
 ```
 
 ## Extracting data from an existing cube
 
 Now that we've logged in, let's get some data! We can do this with the `get_cube()` function. Provide your connection object and the identifier of the cube containing the data. You can get the ID by navigating to the cube within MicroStrategy Web, right-clicking on the cube of interest, and selecting 'properties.' Alternatively, you can use MicroStrategy Developer in a similar manner. `get_cube()` will return a R dataframe with the cube data.
 
-```{r}
+```{r, eval=FALSE}
 cube_data <- get_cube(connection = conn, cube_id = '5E2501A411E8756818A50080EF4524C9')
-knitr::kable(head(cube_data))
 ```
 
 ## Extracting data from an existing report
 
 If the data we need is contained in a report, we can extract it using `get_report()`. Like `get_cube()`, this will return a dataframe containing the data from all rows.
 
-```{r}
+```{r, eval=FALSE}
 report_data <- get_report(connection = conn, report_id = '873CD58E11E8772BA1CD0080EF05B984')
-knitr::kable(head(cube_data))
 ```
 
 ## Creating a new cube
 
 You can create a new in-memory cube from a dataframe in R. This is accomplished with the `create_dataset()` function. You'll need to specify a name for your cube and a name for the table that will contain the data. At this time, only one table per cube is supported. `create_dataset()` will return the datasetID and tableIDs, in case you want to save these for later use.
 
-```{r}
+```{r, eval=FALSE}
 dat <- iris[1:50, ]
-names(dat) <- gsub("[[:punct:]]", "_", names(dat))  ## mstr doesn't permit "." in column name
-dat$ID <- row.names(dat)
+
+# note: column names in MicroStrategy cannot have a period (".")
+names(dat) <- gsub("[[:punct:]]", "_", names(dat))
+
+# this creates the dataset, and returns the dataset ID and table ID which you'll use to update the dataset later
 newcube <- create_dataset(connection = conn,
                           data_frame = dat, 
                           dataset_name = "IRIS_Upload", 
-                          table_name = "IRIS_Upload",
-                          to_attribute = c('ID'))
-newcube
+                          table_name = "IRIS_Upload")
 ```
 
 ## Adding or modifying data in a cube
 
 You can also modify data within a cube. This is helpful if the data changes from day to day and you wish to add new data to a pre-existing cube for analysis in MicroStrategy. To accomplish this, use the `update_dataset()` function. Note that you'll need to pass in both the datasetID and tableID for the target cube and target table within the cube, respectively. These parameters are returned by the `create_dataset()` function. The `updatePolicy` parameter controls the update behavior. Currently supported update operations are `add`, `update`, `upsert`, and `replace`.
 
-```{r}
+```{r, eval=FALSE}
 dat <- iris[51:150, ]
-names(dat) <- gsub("[[:punct:]]", "_", names(dat))  ## mstr doesn't permit "." in column name
-dat$ID <- row.names(dat)
+
+# note: column names in MicroStrategy cannot have a period (".")
+names(dat) <- gsub("[[:punct:]]", "_", names(dat))
+
+# this adds new data to the previously created dataset
 update_dataset(connection = conn,
                data_frame = dat,
                dataset_id = newcube$datasetID,
@@ -90,19 +104,23 @@ update_dataset(connection = conn,
 
 When creating a cube from a R dataframe, numeric columns (e.g. double, numeric, integer) are treated as *metrics* and non-numeric columns (e.g. strings, factors, date and time stamps) are treated as *attributes*. To override this default and specify columns to create specifically as an attribute or metric, an example being an integer that's used as an attribute to join or link two data sets, you can provide a vector of metrics and attributes in the `to_attribue` and `to_metric` parameters.
 
-```{r}
+```{r, eval=FALSE}
 dat <- iris
-names(dat) <- gsub("[[:punct:]]", "_", names(dat))  ## mstr doesn't like "." in column name
 
+# note: column names in MicroStrategy cannot have a period (".")
+names(dat) <- gsub("[[:punct:]]", "_", names(dat))
+
+# create two new columns - one formatted as a numeric, and another formatted as a string
 dat$integer_attribute <- as.integer(row.names(dat))
 dat$integer_metric <- row.names(dat)
-str(dat)
 
+# create a new cube, but this time, specifically instructs MicroStrategy to reflect these two new columns as a metric and attribute, respectively
+# you can map multiple columns at once with to_metric = c("A", "B", "C")
 newcube <- create_dataset(connection = conn, 
                           data_frame = dat, 
                           dataset_name = "IRIS", 
                           table_name = "IRIS_Upload",
-                          to_metric = c("integer_metric"), 
+                          to_metric = c("integer_metric"),
                           to_attribute = c("integer_attribute"))
 ```
 
