@@ -68,7 +68,7 @@ connect_mstr <- function(base_url, username, password, project_name, login_mode=
   if(class(username) != 'character') stop("'username' must be a character; try class(username)")
   if(class(password) != 'character') stop("'password' must be a character; try class(password)")
   if(class(project_name) != 'character') stop("'project_name' must be a character; try class(project_name)")
-  if(!(login_mode %in% c(1, 16))) stop("Invalid login mode. Only '1' (normal) and '16' (LDAP) are supported.")
+  if(!(login_mode %in% c(1, 8, 16))) stop("Invalid login mode. Only '1' (normal), '8' (guest), or '16' (LDAP) are supported.")
   if(class(ssl_verify) != 'logical') stop("'ssl_verify' must be TRUE or FALSE")
 
   # Creates a new connection object
