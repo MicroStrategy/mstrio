@@ -49,6 +49,7 @@ update_dataset(connection=conn, data_frame=df, dataset_id=myDataset$datasetID, t
 ```
 
 #### More resources
+- [Tutorials for mstrio](https://community.microstrategy.com/s/topic/0TO44000000AJ2dGAG/python-r-u108)
 - [Check out mstrio for Python](https://github.com/MicroStrategy/mstrio-py)
 - [Learn more about the MicroStrategy REST API](https://lw.microstrategy.com/msdz/MSDL/GARelease_Current/docs/projects/RESTSDK/Content/topics/REST_API/REST_API.htm)
 - [MicroStrategy REST API Demo environment](https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html)
