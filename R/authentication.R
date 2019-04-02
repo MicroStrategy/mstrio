@@ -19,6 +19,7 @@ login <- function(connection, verbose=FALSE){
 logout <- function(connection, verbose=FALSE){
   response <- httr::POST(url=paste0(connection@base_url, "/auth/logout"),
                          add_headers("X-MSTR-AuthToken"=connection@auth_token),
+                         set_cookies(connection@cookies),
                          encode="json")
   if(verbose){
     print(response$url)
