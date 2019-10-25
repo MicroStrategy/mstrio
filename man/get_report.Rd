@@ -4,7 +4,7 @@
 \name{get_report}
 \alias{get_report}
 \alias{get_report,connection-method}
-\title{Extracts the contents of a report into a R Data.Frame}
+\title{Extracts the contents of a report into a R Data.Frame (deprecated)}
 \usage{
 get_report(connection, report_id, offset = 0, limit = 1000)
 
@@ -28,7 +28,8 @@ required to extract the entire dataset}
 R Data.Frame containing the report contents
 }
 \description{
-Extracts the contents of a MicroStrategy report into a R Data.Frame
+Extracts the contents of a MicroStrategy report into a R Data.Frame. This function is deprecated.
+ Check out the to_dataframe() from the Report class. \code{\link{Report}}
 }
 \examples{
 \donttest{
