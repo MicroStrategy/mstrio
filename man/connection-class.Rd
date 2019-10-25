@@ -19,9 +19,24 @@ Base S4 class object containing connection parameters
 
 \item{\code{project_name}}{Name of the project to connect to (e.g. "MicroStrategy Tutorial")}
 
-\item{\code{project_id}}{Project ID corresponding to the chosen project name. This is determined when connecting to the project by name.}
+\item{\code{project_id}}{Project ID corresponding to the chosen project name. This is determined when 
+connecting to the project by name.}
+
+\item{\code{application_code}}{Code used to identify the client with MicroStrategy.}
+
+\item{\code{web_version}}{web version.}
+
+\item{\code{iserver_version}}{iServer version.}
+
+\item{\code{VRCH}}{Current minimum version supported.}
 
 \item{\code{login_mode}}{Authentication option. Standard (1) or LDAP (16).}
+
+\item{\code{web_version}}{web version.}
+
+\item{\code{iserver_version}}{iServer version.}
+
+\item{\code{version_ok}}{Both iServer and web version are supported.}
 
 \item{\code{ssl_verify}}{Default TRUE. Attempts to verify SSL certificates with each request.}
 

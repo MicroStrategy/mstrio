@@ -1,0 +1,4 @@
+Name: MicroStrategy for RStudio
+Description: Launches MicroStrategy for RStudio
+Binding: initialize
+Interactive: true

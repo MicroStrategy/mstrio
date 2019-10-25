@@ -1,28 +1,47 @@
-## Resubmission
-This is a resubmission of the package 'mstrio' version 10.11.0. This version, 10.11.1, includes a fix for an error that occurred when the package vignette was re-built from source during periodic code-quality checks on CRAN.
-
-The error was due to the temporary unavailability of a web service which was called by code within the vignette. The vignette has been re-written to call the web service on a demo environment that is permanently available. The underlying issue should thus not re-occur in future code-quality checks by CRAN.
+## Submission details
+This submission contains enhancements to the package and an interactive web application for RStudio that is accessed by the RStudio 'Addins' menu and is rendered within the RStudio 'Viewer' pane.
 
 
 ## Test environments
-* local OS X install, R 3.4.0
-* devtools::build_win(version='R-release')
-* devtools::build_win(version='R-devel')
+* local OS macOS 10, R 3.6.1
+* local OS Windows 10, R 3.6.1
+* devtools::check_win_devel()
+* devtools::check_winoldrelease()
+* devtools::check_win_release()
+
 
 ## R CMD check results
 
-There were no ERRORs and no WARNINGs and no NOTEs.
+0 errors | 0 warnings | 2 notes
+
+There were no errors or warnings. There were 2 notes.
+
+* checking R code for possible problems ... NOTE
+  Found the following assignments to the global environment:
+  File ‘mstrio/R/utils-fetching.R’:
+    assign(x = datasetName, value = dataset, envir = .GlobalEnv)
+  File ‘mstrio/R/utils-helpers.R’:
+    assign(dataframe_name, stats::setNames(dataset, proper_columns), 
+      .GlobalEnv)
+  File ‘mstrio/R/utils-update.R’:
+    assign(df_name, stats::setNames(get(df_name, .GlobalEnv), new_names), 
+      .GlobalEnv)
+    assign(df_name, arrange.col(df, instr), .GlobalEnv)
+
+This package contains an RStudio add-in that operates within the RStudio viewer pane. End-users use the add-in to select data frames from the parent R environment and interact with them using the add-in. The functions below provide interactivity between the parent R environment and the RStudio add-in.
 
 
-## R CMD check results from devtools::build_win(version='R-devel') and devtools::build_win(version='R-release')
+* checking installed package size ... NOTE
+  installed size is 14.2Mb
+  sub-directories of 1Mb or more:
+    testdata   4.0Mb
+    www        9.8Mb
 
-There were no ERRORs and no WARNINGs and 1 NOTE.
+The directory 'www' contains compiled and minified components needed by the aforementioned RStudio application along with dependencies. Files have been appropriately minified. The directory 'testdata' contains data used for testing and demonstration.
 
-The NOTE is related to the aforementioned web service availability issue which has been addressed:
 
-checking CRAN incoming feasibility ... NOTE
+## R CMD check results from devtools::check_win_release(), devtools::check_winoldrelease(), and devtools::check_win_devel():
 
-New submission
+0 errors | 0 warnings | 2 notes
 
-Package was archived on CRAN
-
+There were no errors or warnings. There were 2 notes which were identical to the aforementioned ones.

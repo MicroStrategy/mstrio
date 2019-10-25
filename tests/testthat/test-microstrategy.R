@@ -17,7 +17,7 @@ test_that('connection object is a member of Connection class', {
 })
 
 
-test_that('connection object has properly named slots', {
+test_that('connection object has properly named slots and assigned default values', {
 
   # explicitly create a new connection class object
   # this is done to test other functions in the absence of a server connection
@@ -29,9 +29,11 @@ test_that('connection object has properly named slots', {
   expect_equal(.hasSlot(con, 'project_name'), TRUE)
   expect_equal(.hasSlot(con, 'project_id'), TRUE)
   expect_equal(.hasSlot(con, 'login_mode'), TRUE)
+  expect_equal(.hasSlot(con, 'application_code'), TRUE)
   expect_equal(.hasSlot(con, 'ssl_verify'), TRUE)
   expect_equal(.hasSlot(con, 'auth_token'), TRUE)
   expect_equal(.hasSlot(con, 'cookies'), TRUE)
+  expect_equal(con@application_code, 65)
 
 })
 
@@ -65,11 +67,14 @@ test_that('assigned slots match class slots', {
   # this is done to test other functions in the absence of a server connection
   con <- .connection(username=USER, password=PASS, base_url=URL, project_name=PROJ)
 
+  app_code = 99
+
   con@project_id <- "project123"
   con@login_mode <- 16
   con@ssl_verify = TRUE
   con@auth_token = "authtoken123"
   con@cookies <- "cookies123"
+  con@application_code <- app_code
 
   expect_match(con@username, USER)
   expect_match(con@password, PASS)
@@ -77,6 +82,7 @@ test_that('assigned slots match class slots', {
   expect_match(con@project_name, PROJ)
   expect_match(con@project_id, "project123")
   expect_equal(con@login_mode, 16)
+  expect_equal(con@application_code, app_code)
   expect_equal(con@ssl_verify, TRUE)
   expect_match(con@auth_token, "authtoken123")
   expect_match(con@cookies, "cookies123")

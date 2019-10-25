@@ -39,7 +39,7 @@ password <- "demopass"
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 library(mstrio)
 
 conn <- connect_mstr(base_url = 'https://demo.microstrategy.com/MicroStrategyLibrary/api', 
@@ -128,6 +128,6 @@ newcube <- create_dataset(connection = conn,
 
 Finally, terminate session with the server using the `close()` function.
 
-```{r}
+```{r, eval=FALSE}
 close(connection = conn)
 ```
