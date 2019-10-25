@@ -4,13 +4,15 @@
 \name{create_dataset}
 \alias{create_dataset}
 \alias{create_dataset,connection-method}
-\title{Create an in-memory MicroStrategy dataset}
+\title{Create an in-memory MicroStrategy dataset (deprecated)}
 \usage{
 create_dataset(connection, data_frame, dataset_name, table_name,
-  to_metric = NULL, to_attribute = NULL)
+  to_metric = NULL, to_attribute = NULL, folder_id = NULL,
+  description = NULL)
 
 \S4method{create_dataset}{connection}(connection, data_frame, dataset_name,
-  table_name, to_metric = NULL, to_attribute = NULL)
+  table_name, to_metric = NULL, to_attribute = NULL,
+  folder_id = NULL, description = NULL)
 }
 \arguments{
 \item{connection}{MicroStrategy REST API connection object}
@@ -29,12 +31,18 @@ corresponding column name as \code{to_metric=c('myStringIntegers')}}
 
 \item{to_attribute}{(optional) Logical opposite of \code{to_metric}. Helpful for formatting an integer-based row identifier as
 a primary key in the dataset}
+
+\item{folder_id}{(optional) ID of the shared folder that the dataset should be created within. If \code{NULL}, defaults to the user's My Reports folder.}
+
+\item{description}{(optional) Description of the dataset. Must be less than or equal to 250 characters.}
 }
 \value{
 Unique identifiers of the dataset and table within the newly created dataset. Required for \code{update_dataset()}
 }
 \description{
-Creates an in-memory dataset from an R Data.Frame.
+Creates an in-memory dataset from an R Data.Frame. This function is deprecated.
+ Check out the add_table() & create() method from the Dataset class, which allows for uploading multi-table datasets.
+ \code{\link{Dataset}}
 }
 \examples{
 \donttest{

@@ -4,7 +4,7 @@
 \name{get_cube}
 \alias{get_cube}
 \alias{get_cube,connection-method}
-\title{Extract a MicroStrategy cube into a R Data.Frame}
+\title{Extract a MicroStrategy cube into a R Data.Frame (deprecated)}
 \usage{
 get_cube(connection, cube_id, offset = 0, limit = 1000)
 
@@ -28,7 +28,8 @@ required to extract the entire dataset}
 R Data.Frame containing the cube contents
 }
 \description{
-Extracts the contents of a MicroStrategy cube into a R Data.Frame
+Extracts the contents of a MicroStrategy cube into a R Data.Frame. This function is deprecated.
+ Check out the to_dataframe() from the Cube class. \code{\link{Cube}}
 }
 \examples{
 \donttest{
