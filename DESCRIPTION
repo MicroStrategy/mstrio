@@ -1,9 +1,14 @@
 Package: mstrio
 Type: Package
 Title: Interface for 'MicroStrategy' REST API
-Version: 10.11.1
-Author: Scott Rigney
-Maintainer: Scott Rigney <srigney@microstrategy.com>
+Version: 11.1.0400.021
+Authors@R: c(
+    person("Scott", "Rigney", email = "srigney@microstrategy.com", role = c("aut", "cre")),
+    person("Zofia", "Rogala", email = "zrogala@microstrategy.com", role = c("ctb")),
+    person("Ignacy", "Hologa", email = "ihologa@microstrategy.com", role = c("ctb")),
+    person("Piotr", "Czyz", email = "pczyz@microstrategy.com", role = c("ctb")),
+    person("Michał", "Drzazga", email = "mdrzazga@microstrategy.com", role = c("ctb"))
+    )
 Description: Interface for creating data sets and extracting data through the 'MicroStrategy' REST API. Access the demo API at <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>.
 License: Apache License 2.0 | file LICENSE
 Encoding: UTF-8
@@ -11,22 +16,41 @@ LazyData: true
 Depends:
   R (>= 3.4.0)
 Imports:
-  httr (>= 1.3.1),
-  openssl (>= 1.0.1),
-  jsonlite (>= 1.5),
-  methods
+  httr (>= 1.4.1),
+  openssl (>= 1.4.1),
+  jsonlite (>= 1.6),
+  methods,
+  R6,
+  miniUI,
+  rstudioapi,
+  shinyjs,
+  shiny
 Suggests:
-  knitr, 
+  knitr,
   rmarkdown,
   testthat
 VignetteBuilder: knitr
-RoxygenNote: 6.0.1
-Collate: 
-    'authentication.R'
-    'cubes.R'
+RoxygenNote: 6.1.1
+Collate:
+    'api-authentication.R'
+    'api-cubes.R'
+    'api-datasets.R'
+    'api-projects.R'
+    'api-reports.R'
+    'api-misc.R'
+    'cube.R'
     'datasets.R'
-    'formjson.R'
+    'report.R'
     'microstrategy.R'
-    'parsejson.R'
-    'projects.R'
-    'reports.R'
+    'utils-model.R'
+    'utils-formjson.R'
+    'utils-parsejson.R'
+    'utils-encoder.R'
+    'utils-composefilter.R'
+    'utils-files.R'
+    'utils-gui.R'
+    'utils-fetching.R'
+    'utils-helpers.R'
+    'utils-update.R'
+    'server.R'
+    'app.R'

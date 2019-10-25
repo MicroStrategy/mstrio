@@ -4,8 +4,8 @@
 \alias{connect_mstr}
 \title{Create a MicroStrategy REST API connection}
 \usage{
-connect_mstr(base_url, username, password, project_name, login_mode = 1,
-  ssl_verify = TRUE)
+connect_mstr(base_url, username, password, project_name = NULL,
+  project_id = NULL, login_mode = 1, ssl_verify = TRUE)
 }
 \arguments{
 \item{base_url}{URL of the MicroStrategy REST API server}
@@ -16,8 +16,10 @@ connect_mstr(base_url, username, password, project_name, login_mode = 1,
 
 \item{project_name}{Name of the project you intend to connect to. Case-sensitive}
 
+\item{project_id}{ID of the project you intend to connect to}
+
 \item{login_mode}{Specifies the authentication mode to use. Supported authentication modes
-are: Standard (1) (default) or LDAP (16)}
+are Standard (1) (default) or LDAP (16)}
 
 \item{ssl_verify}{If \code{TRUE} (default), verifies the server's SSL certificates with each request}
 }

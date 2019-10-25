@@ -4,7 +4,7 @@
 \name{update_dataset}
 \alias{update_dataset}
 \alias{update_dataset,connection-method}
-\title{Update a previously created dataset}
+\title{Update a previously created dataset (deprecated)}
 \usage{
 update_dataset(connection, data_frame, dataset_id, table_id, table_name,
   update_policy)
@@ -28,7 +28,9 @@ update_dataset(connection, data_frame, dataset_id, table_id, table_name,
 data and inserts new rows), 'replace' (similar to truncate and load, replaces the existing data with new data)}
 }
 \description{
-Updates a previously created MicroStrategy dataset with an R Data.Frame.
+Updates a previously created MicroStrategy dataset with an R Data.Frame. This function is deprecated.
+ Check out the add_table() & update() & publish() method from the Dataset class, which allows for updating multi-table datasets.
+ \code{\link{Dataset}}
 }
 \examples{
 \donttest{
