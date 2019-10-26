@@ -28,7 +28,7 @@ fetchDataset <- function(conn, datasetType, datasetId, datasetName, body={}, lim
     dataset <- instance$to_dataframe(limit=limit, callback=displayFetchLoadingMessage)
     t2 <- unclass(Sys.time())
     time <- round(t2-t1,2)
-    saveDatasetToGlobalEnv(dataset,datasetName)
+    saveDatasetToEnv(dataset,datasetName)
     type <- firstUp(datasetType)
     displayFetchSuccessMessage(type, datasetName, time)
   },
@@ -46,7 +46,7 @@ fetchDataset <- function(conn, datasetType, datasetId, datasetName, body={}, lim
   })
 }
 
-saveDatasetToGlobalEnv <- function(dataset, datasetName, applyBestGuess=TRUE){
+saveDatasetToEnv <- function(dataset, datasetName, applyBestGuess=TRUE){
   if (applyBestGuess) {
     appliedBestGuessTypes <- utils::type.convert(dataset, as.is = TRUE)
     dataset <- appliedBestGuessTypes
@@ -54,9 +54,9 @@ saveDatasetToGlobalEnv <- function(dataset, datasetName, applyBestGuess=TRUE){
   assign(
     x =  datasetName,
     value = dataset,
-    envir = .GlobalEnv
+    envir = mstrio_env
   )
-  properColumnsNames <- utils::head(get(datasetName, .GlobalEnv), n=1L)
+  properColumnsNames <- utils::head(get(datasetName, mstrio_env), n=1L)
   properColumnsNames[1,] <- "placeholder"
   clearJSON <- gsub('`', '_', jsonlite::toJSON(properColumnsNames))
   cmd <- paste0("window.Shiny.setInputValue('properColNames', Object.keys(JSON.parse(`",clearJSON,"`)[0]));",
@@ -89,7 +89,7 @@ exportDataframes <- function(con, names, folderId, saveAsName, wrangle) {
         if (length(this.data$toMetrics) > 0) {to_m <- this.data$toMetrics} else {to_m <- NULL}
         if (length(this.data$toAttributes) > 0) {to_a <- this.data$toAttributes} else {to_a <- NULL}
       }
-      newDs$add_table(i, .GlobalEnv[[names[i]]], "add", to_m, to_a)
+      newDs$add_table(names[i], mstrio_env[[names[i]]], "add", to_m, to_a)
     }
     newDs$create(folderId)
     t2 <- unclass(Sys.time())
