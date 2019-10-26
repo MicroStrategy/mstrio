@@ -1,14 +1,28 @@
 Package: mstrio
 Type: Package
 Title: Interface for 'MicroStrategy' REST API
-Version: 11.1.0400.021
-Authors@R: c(
-    person("Scott", "Rigney", email = "srigney@microstrategy.com", role = c("aut", "cre")),
-    person("Zofia", "Rogala", email = "zrogala@microstrategy.com", role = c("ctb")),
-    person("Ignacy", "Hologa", email = "ihologa@microstrategy.com", role = c("ctb")),
-    person("Piotr", "Czyz", email = "pczyz@microstrategy.com", role = c("ctb")),
-    person("Michał", "Drzazga", email = "mdrzazga@microstrategy.com", role = c("ctb"))
-    )
+Version: 11.1.4.24
+Authors@R: 
+    c(person(given = "Scott",
+             family = "Rigney",
+             role = c("aut", "cre"),
+             email = "srigney@microstrategy.com"),
+      person(given = "Zofia",
+             family = "Rogala",
+             role = "ctb",
+             email = "zrogala@microstrategy.com"),
+      person(given = "Ignacy",
+             family = "Hologa",
+             role = "ctb",
+             email = "ihologa@microstrategy.com"),
+      person(given = "Piotr",
+             family = "Czyz",
+             role = "ctb",
+             email = "pczyz@microstrategy.com"),
+      person(given = "Michał",
+             family = "Drzazga",
+             role = "ctb",
+             email = "mdrzazga@microstrategy.com"))
 Description: Interface for creating data sets and extracting data through the 'MicroStrategy' REST API. Access the demo API at <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>.
 License: Apache License 2.0 | file LICENSE
 Encoding: UTF-8

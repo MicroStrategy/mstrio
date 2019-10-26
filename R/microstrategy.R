@@ -613,5 +613,14 @@ setMethod("update_dataset", "connection", function(connection, data_frame, datas
   ds <- Dataset$new(connection=connection, dataset_id=dataset_id)
   ds$add_table(name=table_name, data_frame=data_frame, update_policy=update_policy)
   ds$update()
-
+  ds$publish()
+  
+  status <- 6
+  while(status != 1){
+    pub <- ds$publish_status()
+    status <- pub$status
+    if(status == 1){
+      break
+    }
+  }
 })
