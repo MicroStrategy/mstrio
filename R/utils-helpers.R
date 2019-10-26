@@ -4,6 +4,12 @@
 
 myView <- function(x, title) get("View", envir = as.environment("package:utils"))(x, title)
 
+getEnvironment <- function() {
+  return(.GlobalEnv)
+}
+
+mstrio_env <- getEnvironment()
+
 firstUp <- function(x) {
   substr(x, 1, 1) <- toupper(substr(x, 1, 1))
   x
@@ -61,12 +67,12 @@ check_version <- function(base_url, supported_ver) {
 }
 
 verifyColumnsNames <- function(dataframe_name, proper_columns) {
-  dataset <- get(dataframe_name, .GlobalEnv)
+  dataset <- get(dataframe_name, mstrio_env)
   colNames <- names(dataset)
   if (!identical(colNames, proper_columns)) {
-    assign(dataframe_name, stats::setNames(dataset, proper_columns), .GlobalEnv)
+    assign(dataframe_name, stats::setNames(dataset, proper_columns), mstrio_env)
     tryCatch({
-      myView(x=get(dataframe_name, .GlobalEnv), title=dataframe_name)
+      myView(x=get(dataframe_name, mstrio_env), title=dataframe_name)
     }, error = function(e) {
 
     })

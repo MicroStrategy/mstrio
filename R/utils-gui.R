@@ -78,12 +78,12 @@ sendDatasetPropertiesToGui <- function() {
 }
 
 sendDataframesToGui <- function() {
-  unlisted <- unlist(eapply(.GlobalEnv, function(x) is.data.frame(x) & nrow(x) > 0))
+  unlisted <- unlist(eapply(mstrio_env, function(x) is.data.frame(x) & nrow(x) > 0))
   cmd <- 'backendManager.updateDataFramesList("[]");'
   if(!is.null(unlisted)){
     name <- names(which(unlisted))
-    rows <- unlist(lapply(name, function(x) nrow(.GlobalEnv[[x]])), use.names=FALSE)
-    columns <- unlist(lapply(name, function(x) ncol(.GlobalEnv[[x]])), use.names=FALSE)
+    rows <- unlist(lapply(name, function(x) nrow(mstrio_env[[x]])), use.names=FALSE)
+    columns <- unlist(lapply(name, function(x) ncol(mstrio_env[[x]])), use.names=FALSE)
     df <- data.frame(name,rows,columns)
     json <- jsonlite::toJSON(df)
     cmd <- paste0("backendManager.updateDataFramesList('",json,"');")
@@ -92,8 +92,8 @@ sendDataframesToGui <- function() {
 }
 
 sendDataframesFullDetailsToGui <- function(dataframe_name, max_rows = 10) {
-  content <- utils::head(na.omit(get(dataframe_name, .GlobalEnv)), n=max_rows)
-  if (nrow(content) < 1) {content <- utils::head(get(dataframe_name, .GlobalEnv), n=max_rows)}
+  content <- utils::head(na.omit(get(dataframe_name, mstrio_env)), n=max_rows)
+  if (nrow(content) < 1) {content <- utils::head(get(dataframe_name, mstrio_env), n=max_rows)}
   argForModel <- list(list("table_name" = "selected_df", "data_frame" = content))
   model <- Model$new(tables = argForModel, name = "preview_table_types")
   content[] <- lapply(content, function(x) gsub("\r?\n|\r", " (ENTER) ", x)) # remove line breaks from each cell, if exists, for Preview Table display
