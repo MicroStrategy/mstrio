@@ -1,3 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^cran-comments.md
+^inst\/www\/static\/.*\.map
+^inst\/testdata$
+^tests\/.*
