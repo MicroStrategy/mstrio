@@ -1,7 +1,7 @@
 Package: mstrio
 Type: Package
 Title: Interface for 'MicroStrategy' REST API
-Version: 11.1.4.24
+Version: 11.1.4.25
 Authors@R: 
     c(person(given = "Scott",
              family = "Rigney",
