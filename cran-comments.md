@@ -1,6 +1,8 @@
 ## Submission details
 This submission contains enhancements to the package and an interactive web application for RStudio that is accessed by the RStudio 'Addins' menu and is rendered within the RStudio 'Viewer' pane.
 
+(28-Oct-2019) This amends previous submission by reducing package size to <5 MB.
+
 
 ## Test environments
 * local OS macOS 10, R 3.6.1
@@ -12,21 +14,6 @@ This submission contains enhancements to the package and an interactive web appl
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 notes
 
-There were no errors or warnings. There was 1 note.
-
-* checking installed package size ... NOTE
-  installed size is 14.2Mb
-  sub-directories of 1Mb or more:
-    testdata   4.0Mb
-    www        9.8Mb
-
-The directory 'www' contains compiled and minified components needed by the aforementioned RStudio application along with dependencies. Files have been appropriately minified. The directory 'testdata' contains data used for testing and demonstration.
-
-
-## R CMD check results from devtools::check_win_release(), devtools::check_win_oldrelease(), and devtools::check_win_devel():
-
-0 errors | 0 warnings | 1 notes
-
-There were no errors or warnings. There was 1 note which was identical to the aforementioned one.
+There were no errors or warnings or notes.
