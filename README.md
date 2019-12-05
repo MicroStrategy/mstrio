@@ -114,7 +114,7 @@ sales_df <- data.frame("store_id" = c(1, 2, 3),
                        "sales_fmt" = c("$400", "$200", "$100"),
                        stringsAsFactors = FALSE)
 
-ds = Dataset(connection=conn, name="Store Analysis")
+ds = Dataset$new(connection=conn, name="Store Analysis")
 ds$add_table(name="Stores", data_frame=stores_df, update_policy="add")
 ds$add_table(name="Sales", data_frame=sales_df, update_policy="add")
 ds$create()
