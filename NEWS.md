@@ -1,3 +1,13 @@
+
+## mstrio 11.2.1
+
+
+## mstrio 11.2.0
+* optimized downloading speed of filtered Reports
+* improved performance when downloading unfiltered Cubes/Reports
+* improved performance when filtering by attributes and metrics
+* GUI bug fixes
+
 ## mstrio 11.1.4
 ### Major changes
 * Cube and Report classes to provide more flexibility when interacting with cubes and reports. These new classes provide the ability to select attributes, metrics, and attribute elements before importing them to R as data frames

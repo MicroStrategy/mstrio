@@ -67,12 +67,23 @@ parse_json <- function(response){
     return(rows)
   }
 
+  if(is.null(response$result$data$root)){
+    return(NULL)
+  }
+
   attribute_names <- get_attribute_names(response)
   metric_names <- get_metric_names(response)
   parsed_rows <- parse_node(node=response$result$data$root, attribute_names = attribute_names)
 
-  df <- data.frame(matrix(unlist(parsed_rows), ncol=length(c(attribute_names, metric_names)), byrow=TRUE), stringsAsFactors=FALSE)
-  names(df) <- c(attribute_names, metric_names)
+  if(length(attribute_names)>0){
+    df <- data.frame(matrix(unlist(parsed_rows), ncol=length(c(attribute_names, metric_names)), byrow=TRUE), stringsAsFactors=FALSE)
+    names(df) <- c(attribute_names, metric_names)
+  }else{
+    metrics <- get_metrics(node=response$result$data$root)
+    df <- data.frame(matrix(metrics, ncol=length(metrics), byrow=TRUE), stringsAsFactors=FALSE)
+    names(df) <- metric_names
+  }
+
 
   df
 }

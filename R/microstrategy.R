@@ -101,7 +101,7 @@ connect_mstr <- function(base_url, username, password, project_name = NULL, proj
   con@web_version <- info$web_version
   con@iserver_version <- info$iserver_version
 
-  if (con@version_ok) {
+  if (con@version_ok) { # nocov start
     if (!ssl_verify) {
       httr::set_config(config(ssl_verifypeer = FALSE))
       con@ssl_verify <- FALSE
@@ -128,7 +128,7 @@ connect_mstr <- function(base_url, username, password, project_name = NULL, proj
     stop(sprintf("This version of mstrio is only supported on MicroStrategy %s or higher.
     Current Intelligence Server version: %s
     Current MicroStrategy Web version: %s", con@VRCH, con@web_version, con@iserver_version), call. = FALSE)
-  }
+  } # nocov end
 }
 
 # TODO: Document internal-only (non-exported) function and method

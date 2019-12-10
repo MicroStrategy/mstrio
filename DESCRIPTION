@@ -1,28 +1,19 @@
 Package: mstrio
 Type: Package
 Title: Interface for 'MicroStrategy' REST API
-Version: 11.1.4.25
-Authors@R: 
-    c(person(given = "Scott",
-             family = "Rigney",
-             role = c("aut", "cre"),
-             email = "srigney@microstrategy.com"),
-      person(given = "Zofia",
-             family = "Rogala",
-             role = "ctb",
-             email = "zrogala@microstrategy.com"),
-      person(given = "Ignacy",
-             family = "Hologa",
-             role = "ctb",
-             email = "ihologa@microstrategy.com"),
-      person(given = "Piotr",
-             family = "Czyz",
-             role = "ctb",
-             email = "pczyz@microstrategy.com"),
-      person(given = "Michał",
-             family = "Drzazga",
-             role = "ctb",
-             email = "mdrzazga@microstrategy.com"))
+Version: 11.2.1.2
+Maintainer: Piotr Kowal <pkowal@microstrategy.com>
+Authors@R: c(
+    person("Piotr", "Kowal", email = "pkowal@microstrategy.com", role = c("cre")),
+    person("Scott", "Rigney", email = "srigney@microstrategy.com", role = c("aut")),
+    person("Zofia", "Rogala", email = "zrogala@microstrategy.com", role = c("ctb")),
+    person("Piotr", "Czyz", email = "pczyz@microstrategy.com", role = c("ctb")),
+    person("Michał", "Drzazga", email = "mdrzazga@microstrategy.com", role = c("ctb")),
+    person("Oskar", "Duda", email = "oduda@microstrategy.com", role = c("ctb")),
+    person("Filip", "Godlewski", email = "fgodlewski@microstrategy.com", role = c("ctb")),
+    person("Ignacy", "Hologa", email = "ihologa@microstrategy.com", role = c("ctb")),
+    person("Adam", "Piotrowski", email = "apiotrowski@microstrategy.com", role = c("ctb"))
+    )
 Description: Interface for creating data sets and extracting data through the 'MicroStrategy' REST API. Access the demo API at <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>.
 License: Apache License 2.0 | file LICENSE
 Encoding: UTF-8
@@ -40,6 +31,7 @@ Imports:
   shinyjs,
   shiny
 Suggests:
+  httptest,
   knitr,
   rmarkdown,
   testthat
@@ -60,6 +52,7 @@ Collate:
     'utils-formjson.R'
     'utils-parsejson.R'
     'utils-encoder.R'
+    'utils-filter.R'
     'utils-composefilter.R'
     'utils-files.R'
     'utils-gui.R'

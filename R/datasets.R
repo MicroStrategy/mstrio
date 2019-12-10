@@ -113,6 +113,10 @@ Dataset <- R6Class("Dataset",
                     "data_frame" = data_frame,
                     "update_policy" = tolower(update_policy))
 
+      if(any(to_attribute %in% to_metric)) {
+        stop(paste0("Column name(s) present in `to_attribute` also present in 'to_metric'."))
+      }
+
       if(!is.null(to_attribute)) {
         if(!all(to_attribute %in% names(data_frame))) {
           stop(paste0("Column name(s) in `to_attribute` were not found in `names(data_frame)`."))
@@ -177,10 +181,14 @@ Dataset <- R6Class("Dataset",
                                 dataset_id=self$dataset_id,
                                 session_id=self$session_id,
                                 verbose=self$verbose)
-          pub <- content(pub, as="parsed", type="application/json")
-          status <- pub$status
-          if(status == 1){
-            break
+          if(http_error(pub)) {
+            stop(private$response_handler(response, msg="Error creating new dataset definition."))
+          } else {
+            pub <- content(pub, as="parsed", type="application/json")
+            status <- pub$status
+            if(status == 1){
+              break
+            }
           }
         }
       }

@@ -4,7 +4,7 @@
 \name{Model}
 \alias{Model}
 \title{Create the definition of multi-table and single-table datasets}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
+\format{An object of class \code{R6ClassGenerator} of length 25.}
 \usage{
 Model
 }
