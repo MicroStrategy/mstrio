@@ -70,13 +70,6 @@ updateRecentProjects <- function(recentProjects) {
   saveStringToFile(path,recentProjects)
 }
 
-updateDatasetProperties <- function(properties) {
-  fileName = 'datasetProperties.txt'
-  path <- file.path(baseFolderPath(),fileName)
-  unlink(path)
-  saveStringToFile(path,properties)
-}
-
 saveStringToFile <- function(path, string) {
     tryCatch({
       vector <- c(string)

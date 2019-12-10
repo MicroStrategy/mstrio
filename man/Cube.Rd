@@ -4,7 +4,7 @@
 \name{Cube}
 \alias{Cube}
 \title{Extract a MicroStrategy cube into a R Data.Frame}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
+\format{An object of class \code{R6ClassGenerator} of length 25.}
 \usage{
 Cube
 }
@@ -21,22 +21,34 @@ Access, filter, publish, and extract data from MicroStrategy in-memory cubes
 
 \examples{
 \donttest{
+# Create a connection object.
+connection = connect_mstr(base_url, username, password, project_name)
+
+# Create a cube object.
 my_cube <- Cube$new(connection=conn, cube_id="...")
-df <- my_cube$to_dataframe()
-# Use object IDs for metrics, attributes, and attribute elements to filter contents of a cube.
-my_cube$metrics
+
+# See attributes and metrics in the report.
 my_cube$attributes
+my_cube$metrics
 my_cube$attr_elements
 
-# Then, choose those elements by passing their IDs to the Cube.apply_filters() method. To see 
-# the chosen elements, call my_cube.filters and to clear any active filters, 
-# call my_cube.clear_filters().
-my_cube$apply_filters(
-         attributes=list("A598372E11E9910D1CBF0080EFD54D63", "A59855D811E9910D1CC50080EFD54D63"),
-         metrics=list("B4054F5411E9910D672E0080EFC5AE5B"),
-         attr_elements=list("A598372E11E9910D1CBF0080EFD54D63:Los Angeles", 
-         "A598372E11E9910D1CBF0080EFD54D63:Seattle"))
-df <- my_cube$to_dataframe()
+# Specify attributes and metrics (columns) to be fetched.
+my_cube$apply_filters(attributes = my_report$attributes[1:2],
+                         metrics = my_report$metrics[1:2])
+
+# See the selection of attributes, metrics and attribute elements.
+my_cube$selected_attributes
+my_cube$selected_metrics
+my_cube$selected_attr_elements
+
+# Clear filtering to load a full dataset.
+my_cube$clear_filters()
+
+# Fetch data from the Intelligence Server.
+my_cube$to_dataframe()
+
+# See the dataframe.
+my_cube$dataframe
 }
 }
 \keyword{datasets}

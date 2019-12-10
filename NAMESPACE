@@ -2,6 +2,7 @@
 
 export(Cube)
 export(Dataset)
+export(Filter)
 export(Model)
 export(Report)
 export(close)

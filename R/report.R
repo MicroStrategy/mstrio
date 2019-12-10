@@ -1,6 +1,7 @@
 # report.R
 # Create and interact with MicroStrategy reports
 
+
 #' @title Extract a MicroStrategy report into a R Data.Frame
 #'
 #' @description Access, filter, publish, and extract data from in-memory reports.
@@ -8,25 +9,37 @@
 #' to be fetched through Report.apply_filters() and Report.clear_filters() . Fetch dataset through
 #' Report.to_dataframe() method.
 #' @field connection MicroStrategy connection object
-#' @field report_id Identifier of a pre-existing report.
+#' @field report_id Identifier of a report.
 #' @examples
 #' \donttest{
-#' my_report <- Report$new(connection=conn, report_id="...")
-#' df <- my_report$to_dataframe()
-#' # Use object IDs for metrics, attributes, and attribute elements to filter contents of a report.
-#' my_report$metrics
+#' # Create a connection object.
+#' connection = connect_mstr(base_url, username, password, project_name)
+#'
+#' # Create a report object.
+#' my_report <- Report$new(connection, report_id)
+#'
+#' # See attributes and metrics in the report.
 #' my_report$attributes
+#' my_report$metrics
 #' my_report$attr_elements
-#' 
-#' # Then, choose those elements by passing their IDs to the Report.apply_filters() method. 
-#' # To see the chosen elements, call my_report.filters and to clear any active filters, 
-#' # call my_report.clear_filters().
-#' my_report$apply_filters(
-#'          attributes=list("A598372E11E9910D1CBF0080EFD54D63", "A59855D811E9910D1CC50080EFD54D63"),
-#'          metrics = list("B4054F5411E9910D672E0080EFC5AE5B"),
-#'          attr_elements = list("A598372E11E9910D1CBF0080EFD54D63:Los Angeles", 
-#'                               "A598372E11E9910D1CBF0080EFD54D63:Seattle"))
-#' df <- my_report$to_dataframe()
+#'
+#' # Specify attributes and metrics (columns) to be fetched.
+#' my_report$apply_filters(attributes = my_report$attributes[1:2],
+#'                            metrics = my_report$metrics[1:2])
+#'
+#' # See the selection of attributes, metrics and attribute elements.
+#' my_report$selected_attributes
+#' my_report$selected_metrics
+#' my_report$selected_attr_elements
+#'
+#' # Clear filtering to load a full dataset.
+#' my_report$clear_filters()
+#'
+#' # Fetch data from the Intelligence Server.
+#' my_report$to_dataframe()
+#'
+#' # See the dataframe.
+#' my_report$dataframe
 #' }
 #' @docType class
 #' @importFrom R6 R6Class
@@ -38,6 +51,7 @@ Report <- R6Class("Report",
     #instance variables
     connection = NULL,
     report_id = NULL,
+    offset = 0,
     name = NULL,
     attributes = NULL,
     metrics = NULL,
@@ -45,6 +59,9 @@ Report <- R6Class("Report",
     selected_attributes = NULL,
     selected_metrics = NULL,
     selected_attr_elements = NULL,
+    dataframe = NULL,
+    filters = NULL,
+
 
     initialize = function(connection, report_id) {
       # Initialize report contructor.
@@ -53,48 +70,27 @@ Report <- R6Class("Report",
       self$report_id <- report_id
 
       private$load_definition()
+      self$filters <- Filter$new(attributes=self$attributes,
+                                          metrics=self$metrics,
+                                          attr_elements=NULL)
     },
     
-    get_attr_elements = function(verbose = TRUE){
-      # Load elements of all attributes to be accesibile by Report$attr_elements.
-
-      if(is.null(self$attr_elements)){
-        private$load_attr_elements()
-      }
-
-      if(verbose) self$attr_elements
-    },
-
-    apply_filters = function(attributes = NULL, metrics = NULL, attr_elements = NULL, body = NULL) {
-      # Apply filters on the report data so only the chosen attributes, metrics, and attribute elements are retrieved from the Intelligence Server.
-      if(!is.null(body)){
-        private$filters <- body
-      } else {
-        self$selected_attributes <- attributes
-        self$selected_metrics <- metrics
-        self$selected_attr_elements <- attr_elements
-        private$filters <- full_body(attributes, metrics, attr_elements)
-      }
-    },
-
-    clear_filters = function() {
-      # Clear previously set filters, allowing all attributes, metrics, and attribute elements to be retrieved from the Intelligence Server.
-
-      self$selected_attributes <- NULL
-      self$selected_metrics <- NULL
-      self$selected_attr_elements <- NULL
-      private$filters <- NULL
-
-    },
-
-    to_dataframe = function(offset = 0, limit = 25000, callback = function(x,y) {}) {
-      # Extract contents of a report into a Pandas Data Frame. Previously `get_report()`.
+    to_dataframe = function(limit = 25000, callback = function(x,y) {}) {
+      # Extract contents of a report into a R Data Frame. Previously `get_report()`.
 
       # Get first report instance
-      response <- report_instance(connection=self$connection, report_id=self$report_id, offset=offset, limit=limit, body=private$filters)
+      response <- report_instance(connection=self$connection,
+                                  report_id=self$report_id,
+                                  offset=self$offset,
+                                  limit=limit,
+                                  body=self$filters$filter_body()
+                                  )
 
+      # if(response$status_code == 204) {
+      #   stop(print("Data Frame looks empty."))
+      # }
       if(http_error(response)) {  # http != 200
-            private$response_handler(response, "Error getting report contents.")
+            private$response_handler(response, private$err_msg_instance)
       }
 
       # Gets the pagination totals from the response object
@@ -117,38 +113,122 @@ Report <- R6Class("Report",
 
         for(offset_ in offsets){
           # Fetch add'l rows from the report
-          response <- report_instance_id(connection=self$connection, report_id=self$report_id, instance_id=instance_id, offset=offset_, limit=limit)
+          response <- report_instance_id(connection=self$connection,
+                                         report_id=self$report_id,
+                                         instance_id=instance_id,
+                                         offset=offset_,
+                                         limit=limit)
           response <- content(response)
           response_list[[length(response_list)+1]] <- parse_json(response = response)
           callback(offset_, pagination$total)
         }
         callback(pagination$total, pagination$total)
-        return(do.call(rbind.data.frame, response_list))
+        self$dataframe <- do.call(rbind.data.frame, response_list)
       } else {
         callback(pagination$total, pagination$total)
-        return(parse_json(response=response))
+        self$dataframe <- parse_json(response=response)
       }
-
+      # convert column types
+      self$dataframe <- type.convert(self$dataframe, as.is = TRUE)
+      if(length(self$dataframe) == 0) {
+        stop(print("Data Frame looks empty."))
+      } else {
+      return(self$dataframe)
     }
+    },
 
+    apply_filters = function(attributes=NULL, metrics=NULL, attr_elements=NULL) {
+      # Instantiate the filter object and download all attr_elements of the report.
+      # Apply filters on the report data so only the chosen attributes, metrics,
+      # and attribute elements are retrieved from the Intelligence Server.
+
+      #1st check: if params is null finish
+      if(is.null(attributes) & is.null(metrics) & is.null(attr_elements)) {
+      }
+      else {
+        
+        #TODO replace with get_attr_elements()
+        #2nd check: if self.attr_elem is null
+        if(is.null(self$attr_elements) & !is.null(attr_elements)) {
+          #load attr_elem and save the result to report instance
+          private$load_attr_elements()
+        }
+        # 3rd check if filter object is created with attr_elem and if report has attr_elem downloaded
+        if(is.null(self$filters$attr_elems) & !is.null(attr_elements)) {
+          self$filters <- Filter$new(attributes=self$attributes,
+                                          metrics=self$metrics,
+                                          attr_elements=self$attr_elements)
+        }
+
+        # Previous functionality of apply_filters: set filters as specified in apply filters
+        if(!is.null(attributes)){
+          if(length(attributes)==0){
+            self$filters$attr_selected <- list()
+          }else{
+            self$filters$select(attributes)
+          }
+        } # Else do nothing
+
+        if(!is.null(metrics)){
+          if(length(metrics)==0){
+            self$filters$metr_selected <- list()
+          }else{
+            self$filters$select(metrics)
+          }
+        } # Else do nothing
+
+        if(length(attr_elements)>0) {
+          self$filters$select(attr_elements)
+        }
+
+        # Assign filter values in the report instance
+        self$selected_attributes <- self$filters$attr_selected
+        self$selected_metrics <- self$filters$metr_selected
+        self$selected_attr_elements <- self$filters$attr_elem_selected
+      }
+    },
+
+    clear_filters = function() {
+      # Clear previously set filters, allowing all attributes, metrics,
+      # and attribute elements to be retrieved from the Intelligence Server.
+      self$filters$clear()
+
+      self$selected_attributes <- self$filters$attr_selected
+      self$selected_metrics <- self$filters$metr_selected
+      self$selected_attr_elements <- self$filters$attr_elem_selected
+    },
+
+    get_attr_elements = function(verbose = TRUE){
+      # Load elements of all attributes to be accesibile by Report$attr_elements.
+
+      if(is.null(self$attr_elements)){
+        private$load_attr_elements()
+      }
+      if(verbose) self$attr_elements
+    }
   ),
+
 
   private = list(
 
-    filters = NULL,
+    err_msg_definition = "Error getting report definition. Check report ID.",
+    err_msg_instance = "Error getting report contents.",
+    err_msg_elements = "Error loading attribute elements.",
 
     load_definition = function() {
-      # Get the definition of a report, including attributes and metrics. Implements GET /reports/<report_id>.
-
-      response <- report(connection = self$connection, report_id = self$report_id)
+      # Get the definition of a report, including attributes and metrics.
+      response <- report_instance(connection=self$connection,
+                                  report_id=self$report_id,
+                                  offset=0,
+                                  limit=0
+                                  )
 
       if(http_error(response)) {  # http != 200
-        private$response_handler(response, "Error loading Report$attributes and Report$metrics.")
+        private$response_handler(response, private$err_msg_definition)
       }
 
       self$name <- content(response)$name
-
-      objects <- content(response)$result$definition$availableObjects
+      objects <- content(response)$result$definition
 
       self$attributes <- lapply(objects$attributes, function(attr) attr$id)
       self$metrics <- lapply(objects$metrics, function(metr) metr$id)
@@ -158,23 +238,59 @@ Report <- R6Class("Report",
     },
 
     load_attr_elements = function() {
-      # Get the elements of report attributes. Implements GET /reports/<report_id>/attributes/<attribute_id>/elements
+      # Get the elements of report attributes.
+      is_empty <- function(x){
+      # Helper function to handle empty 'formValues'.
+        if(is.na(x) || is.null(x) || nchar(x)==0) return(TRUE)
+        else return(FALSE)
+      }
 
-      get_single_attr_elements = function(conn, report_id, attr_id) {
-        #helper function extracting attr elements from HTTP response.
-        response <- report_single_attr_elements(conn, report_id, attr_id)
+      get_single_attr_elements = function(conn, report_id, attr_id, offset=self$offset, limit=160000) {
+        # Helper function extracting attr elements from HTTP response.
+
+        # Fetch first chunk to determine what is the total number of elements.
+        response <- report_elements(connection=conn, report_id, attr_id, offset, limit)
 
         if(http_error(response)) {  # http != 200
-          private$response_handler(response, "Error loading Report$attr_elements.")
+          private$response_handler(response, private$err_msg_elements)
         }
 
         elements <- lapply(content(response), function(elem) unlist(elem$id))
-        names(elements) <- lapply(content(response), function(elem) unlist(elem$formValues))
+        names(elements) <- lapply(content(response), function(elem){
+                              if(is_empty(unlist(elem$formValues))) unlist(elem$id)
+                              else unlist(elem$formValues)
+                              })
+
+        total <- as.numeric(response$headers$'x-mstr-total-count')
+
+        # Fetch the rest of elements if their number exceeds the limit.
+        if(total > limit){
+          offsets = seq(from=limit, to=total, by=limit)
+
+          for(offset_ in offsets){
+            response <- report_elements(conn, report_id, attr_id, offset_, limit)
+
+            if(http_error(response)) {  # http != 200
+              private$response_handler(response, private$err_msg_elements)
+            }
+
+            chunk <- lapply(content(response), function(elem) unlist(elem$id))
+            names(chunk) <- lapply(content(response), function(elem){
+                              if(is_empty(unlist(elem$formValues))) unlist(elem$id)
+                              else unlist(elem$formValues)
+                            })
+            elements <- c(elements, chunk)
+          }
+        }
 
         elements
       }
 
-      self$attr_elements <- lapply(self$attributes, function(attr_id) get_single_attr_elements(self$connection, self$report_id, attr_id))
+      # Fetch elements for all attributes
+      self$attr_elements <- lapply(self$attributes, function(attr_id){
+        list("id" = attr_id,
+             "elements" = get_single_attr_elements(self$connection, self$report_id, attr_id))
+      })
 
     },
 

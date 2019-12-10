@@ -12,10 +12,15 @@ downloadDataset <- function(input) {
     });
 }
 
-fetchDataset <- function(conn, datasetType, datasetId, datasetName, body={}, limit=25000) {
+fetchDataset <- function(conn, datasetType, datasetId, datasetName, body, limit=25000) {
   limit <- strtoi(limit, base = 0L)
   t1 <- unclass(Sys.time())
-  if(body=='null') body <- {}
+
+  body <- jsonlite::fromJSON(body)
+
+  if (length(body$attributes) > 0) {attr <- body$attributes} else {attr <- NULL}
+  if (length(body$metrics) > 0) {metr <- body$metrics} else {metr <- NULL}
+  if (length(body$filters) > 0) {filtr <- body$filters} else {filtr <- NULL}
 
   tryCatch({
     if(datasetType=='dataset') {
@@ -24,7 +29,11 @@ fetchDataset <- function(conn, datasetType, datasetId, datasetName, body={}, lim
     else {
       instance <- mstrio::Report$new(conn, datasetId)
     }
-    instance$apply_filters(body=body)
+    instance$apply_filters(
+      attributes=attr,
+      metrics=metr,
+      attr_elements=filtr
+    )
     dataset <- instance$to_dataframe(limit=limit, callback=displayFetchLoadingMessage)
     t2 <- unclass(Sys.time())
     time <- round(t2-t1,2)
@@ -46,7 +55,7 @@ fetchDataset <- function(conn, datasetType, datasetId, datasetName, body={}, lim
   })
 }
 
-saveDatasetToEnv <- function(dataset, datasetName, applyBestGuess=TRUE){
+saveDatasetToEnv <- function(dataset, datasetName, applyBestGuess=FALSE){
   if (applyBestGuess) {
     appliedBestGuessTypes <- utils::type.convert(dataset, as.is = TRUE)
     dataset <- appliedBestGuessTypes
@@ -77,6 +86,11 @@ exportDataframes <- function(con, names, folderId, saveAsName, wrangle) {
     newDs <- mstrio::Dataset$new(connection=con, name=saveAsName);
     wrangle_data <- jsonlite::fromJSON(wrangle)
     for(i in 1:length(names)) {
+      df_name = names[i]
+      df <- mstrio_temp_env[[df_name]]
+      if(is.null(df)) {
+        df <- mstrio_env[[df_name]]
+      }
       this.data <- tryCatch({
         get(names[i], wrangle_data)
       }, error = function(e) {
@@ -89,7 +103,7 @@ exportDataframes <- function(con, names, folderId, saveAsName, wrangle) {
         if (length(this.data$toMetrics) > 0) {to_m <- this.data$toMetrics} else {to_m <- NULL}
         if (length(this.data$toAttributes) > 0) {to_a <- this.data$toAttributes} else {to_a <- NULL}
       }
-      newDs$add_table(names[i], mstrio_env[[names[i]]], "add", to_m, to_a)
+      newDs$add_table(df_name, df, "add", to_m, to_a)
     }
     newDs$create(folderId)
     t2 <- unclass(Sys.time())

@@ -9,7 +9,6 @@ server <- function(input, output, session) {
   sendEnvInfosToGui();
   sendPackageVersionToGui();
   sendRecentProjectsToGui();
-  sendDatasetPropertiesToGui();
   sendInformationAboutBackendToGui();
 
   shiny::observeEvent(input$triggerDatasetInfo, {
@@ -29,16 +28,16 @@ server <- function(input, output, session) {
   })
 
   shiny::observeEvent(input$onExportGatherDetails,{
-    sendDataframesFullDetailsToGui(input$dataframeToGather);
+    sendDataframesFullDetailsToGui(input$dataframeToGather, input$dataframeNewName);
   })
 
-  shiny::observeEvent(input$onWrangleColNameChange,{
-    updateColumnName(input$dataframeForColNameChange, input$previousColName, input$newColName)
-  })
+  # shiny::observeEvent(input$onWrangleColNameChange,{
+  #   updateColumnName(input$dataframeForColNameChange, input$previousColName, input$newColName)
+  # })
 
-  shiny::observeEvent(input$onWrangleReorderRequest,{
-    reorderColumns(input$dataframeForColReorder, input$columnsForReorder, input$reorderStartIndex)
-  })
+  # shiny::observeEvent(input$onWrangleReorderRequest,{
+  #   reorderColumns(input$dataframeForColReorder, input$columnsForReorder, input$reorderStartIndex)
+  # })
 
   shiny::observeEvent(input$newEnvSuggestions, {
     updateEnvSuggestions(input$newEnvSuggestions)
@@ -48,8 +47,8 @@ server <- function(input, output, session) {
     updateRecentProjects(input$newRecentProjects)
   })
 
-  shiny::observeEvent(input$updateDatasetProperties, {
-    updateDatasetProperties(input$updateDatasetProperties)
+  shiny::observeEvent(input$dataModelingSteps, {
+    applyDataModeling(input$dataModelingSteps)
   })
 
   shiny::observeEvent(input$msgToConsole, {

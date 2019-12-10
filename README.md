@@ -22,17 +22,23 @@ With **mstrio**, it's easy to integrate cross-departmental, trustworthy business
 <!--te-->
 
 ## Installation
-Installation is easy when using [CRAN][cran]:
+Installation is easy when using [CRAN][cran]. Read more about installation on MicroStrategy's [product documentation][mstr_help_docs].
+
+#### Install the `mstrio` package
 ```R
 install.packages("mstrio")
 ```
 
 ## Versioning
-Functionality may be added to **mstrio** in conjunction with annual MicroStrategy platform releases or through updates to platform releases. To ensure compatibility with APIs supported by your MicroStrategy environment, it is recommended to install a version of **mstrio** that corresponds to the version number of your MicroStrategy environment.
+Functionalities may be added to **mstrio** either in combination with annual MicroStrategy platform releases or through updates to platform releases. To ensure compatibility with APIs supported by your MicroStrategy environment, it is recommended to install a version of **mstrio** that corresponds to the version number of your MicroStrategy environment.
 
-The current version of mstrio is 11.1.4 and is supported on MicroStrategy 2019 Update 4 (11.1.4) and later. To leverage the MicroStrategy for RStudio application, mstrio 11.1.4 and MicroStrategy 2019 Update 4 (11.1.4) are required.
+The current version of mstrio is 11.2.1 and is supported on MicroStrategy 2019 Update 4 (11.1.4) and later. To leverage the MicroStrategy for RStudio application, mstrio 11.2.1 and MicroStrategy 2019 Update 4 (11.1.4) are required.
 
-The preceding version was 10.11. It is supported on MicroStrategy 2019 (11.1), MicroStrategy 2019 Update 1 (11.1.1), MicroStrategy 2019 Update 2 (11.1.2), and MicroStrategy 2019 Update 3 (11.1.3). Refer to the [CRAN package archive][cran_archive] for a list of available versions. 
+If you intend to use mstrio with MicroStrategy version older than 11.1.4, refer to the [CRAN package archive][cran_archive] to download mstrio 10.11.1, which is supported on:
+* MicroStrategy 2019 (11.1)
+* MicroStrategy 2019 Update 1 (11.1.1)
+* MicroStrategy 2019 Update 2 (11.1.2)
+* MicroStrategy 2019 Update 3 (11.1.3)
 
 To install a specific, archived version of mstrio, first obtain the URL for the version you need from the [package archive on CRAN][cran_archive], and install as follows:
 ```R
@@ -76,27 +82,35 @@ By default, SSL certificates are validated with each API request. To turn this o
 conn <- connect_mstr(base_url=base_url, username=username, password=password, project_name=project_name, 
                      ssl_verify=FALSE)
 ```
-
 ### Import data from Cubes and Reports
-To import the contents of a published cube into a DataFrame for analysis in R, use the `Cube` class. In **mstrio**, Reports and Cubes have the same API, so you can use these examples for importing Report data to a DataFrame, too.
+In **mstrio**, Reports and Cubes have the same API, so you can use these examples for importing Report data to a DataFrame, too.
+To import the contents of a published cube into a DataFrame for analysis in R, use the `Cube` class:
 ```R
 my_cube <- Cube$new(connection=conn, cube_id="...")
 df <- my_cube$to_dataframe()
 ```
-
-By default, all rows are imported when `Cube$to_dataframe()` is called. Filter the contents of a cube by passing the object IDs for the metrics, attributes, and attribute elements you need.
-First, get the object IDs of the metrics, attributes, and attribute elements that are available within the cube:
+To import Reports into a DataFrame for analysis in R use the optimized `Report` class:
+```R
+my_report <- Report$new(connection=conn, report_id="...")
+df <- my_report$to_dataframe()
+```
+By default, all rows are imported when `my_cube$to_dataframe()` or `my_report$to_dataframe()` are called. Filter the contents of a cube/report by passing the object IDs for the metrics, attributes, and attribute elements you need.
+First, get the object IDs of the metrics, attributes that are available within the Cube/Report object instance:
 ```R
 my_cube$metrics
 my_cube$attributes
+```
+If you need to filter by attribute elements, call `my_cube$get_attr_elements()` or `my_report$get_attr_elements()` which will fetch all unique attribute elements per attribute. The attribute elements are available within the Cube/Report object instance:
+```R
 my_cube$attr_elements
 ```
-
-Then, choose those elements by passing their IDs to the `Cube.apply_filters()` method. To see the chosen elements, call `my_cube.filters`  and to clear any active filters, call `my_cube.clear_filters()`.
+Then, choose those elements by passing their IDs to the `my_cube$apply_filters()` method. To see the chosen elements, call `my_cube$filters` and to clear any active filters, call `my_cube$clear_filters()`.
 ```R
-my_cube$apply_filters(attributes=list("A598372E11E9910D1CBF0080EFD54D63", "A59855D811E9910D1CC50080EFD54D63"),
-                      metrics=list("B4054F5411E9910D672E0080EFC5AE5B"),
-                      attr_elements=list("A598372E11E9910D1CBF0080EFD54D63:Los Angeles", "A598372E11E9910D1CBF0080EFD54D63:Seattle"))
+my_cube$apply_filters(
+   attributes=list("A598372E11E9910D1CBF0080EFD54D63", "A59855D811E9910D1CC50080EFD54D63"),
+   metrics=list("B4054F5411E9910D672E0080EFC5AE5B"),
+   attr_elements=list("A598372E11E9910D1CBF0080EFD54D63:Los Angeles", "A598372E11E9910D1CBF0080EFD54D63:Seattle"))
+   
 df <- my_cube$to_dataframe()
 ```
 
@@ -168,3 +182,4 @@ RStudio and Shiny are trademarks of RStudio, Inc.
 [mstr_datasci_comm]: <https://community.microstrategy.com/s/topic/0TO44000000AJ2dGAG/python-r-u108>
 [mstr_rest_demo]: <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>
 [mstr_rest_docs]: <https://lw.microstrategy.com/msdz/MSDL/GARelease_Current/docs/projects/RESTSDK/Content/topics/REST_API/REST_API.htm>
+[mstr_help_docs]: <https://www2.microstrategy.com/producthelp/current/MSTR-for-RStudio/Content/mstr_for_rstudio.htm>

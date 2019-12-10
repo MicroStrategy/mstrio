@@ -2,13 +2,14 @@
 #' @importFrom stats setNames
 #' @importFrom httr http_status http_error content
 
-myView <- function(x, title) get("View", envir = as.environment("package:utils"))(x, title)
+myView <- function(x, title) get("View", envir = as.environment("package:utils"))(x, title) # nocov
 
 getEnvironment <- function() {
-  return(.GlobalEnv)
+  return(.GlobalEnv) # nocov
 }
 
 mstrio_env <- getEnvironment()
+mstrio_temp_env <- new.env()
 
 firstUp <- function(x) {
   substr(x, 1, 1) <- toupper(substr(x, 1, 1))
@@ -69,11 +70,11 @@ check_version <- function(base_url, supported_ver) {
 verifyColumnsNames <- function(dataframe_name, proper_columns) {
   dataset <- get(dataframe_name, mstrio_env)
   colNames <- names(dataset)
-  if (!identical(colNames, proper_columns)) {
+  if (!identical(colNames, proper_columns)) { # nocov start
     assign(dataframe_name, stats::setNames(dataset, proper_columns), mstrio_env)
     tryCatch({
       myView(x=get(dataframe_name, mstrio_env), title=dataframe_name)
-    }, error = function(e) {
+    }, error = function(e) { # nocov end
 
     })
   }

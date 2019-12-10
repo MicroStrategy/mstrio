@@ -4,7 +4,7 @@
 \name{Report}
 \alias{Report}
 \title{Extract a MicroStrategy report into a R Data.Frame}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
+\format{An object of class \code{R6ClassGenerator} of length 25.}
 \usage{
 Report
 }
@@ -19,27 +19,39 @@ Report.to_dataframe() method.
 \describe{
 \item{\code{connection}}{MicroStrategy connection object}
 
-\item{\code{report_id}}{Identifier of a pre-existing report.}
+\item{\code{report_id}}{Identifier of a report.}
 }}
 
 \examples{
 \donttest{
-my_report <- Report$new(connection=conn, report_id="...")
-df <- my_report$to_dataframe()
-# Use object IDs for metrics, attributes, and attribute elements to filter contents of a report.
-my_report$metrics
+# Create a connection object.
+connection = connect_mstr(base_url, username, password, project_name)
+
+# Create a report object.
+my_report <- Report$new(connection, report_id)
+
+# See attributes and metrics in the report.
 my_report$attributes
+my_report$metrics
 my_report$attr_elements
 
-# Then, choose those elements by passing their IDs to the Report.apply_filters() method. 
-# To see the chosen elements, call my_report.filters and to clear any active filters, 
-# call my_report.clear_filters().
-my_report$apply_filters(
-         attributes=list("A598372E11E9910D1CBF0080EFD54D63", "A59855D811E9910D1CC50080EFD54D63"),
-         metrics = list("B4054F5411E9910D672E0080EFC5AE5B"),
-         attr_elements = list("A598372E11E9910D1CBF0080EFD54D63:Los Angeles", 
-                              "A598372E11E9910D1CBF0080EFD54D63:Seattle"))
-df <- my_report$to_dataframe()
+# Specify attributes and metrics (columns) to be fetched.
+my_report$apply_filters(attributes = my_report$attributes[1:2],
+                           metrics = my_report$metrics[1:2])
+
+# See the selection of attributes, metrics and attribute elements.
+my_report$selected_attributes
+my_report$selected_metrics
+my_report$selected_attr_elements
+
+# Clear filtering to load a full dataset.
+my_report$clear_filters()
+
+# Fetch data from the Intelligence Server.
+my_report$to_dataframe()
+
+# See the dataframe.
+my_report$dataframe
 }
 }
 \keyword{datasets}
