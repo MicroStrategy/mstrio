@@ -1,18 +1,19 @@
 Package: mstrio
 Type: Package
 Title: Interface for 'MicroStrategy' REST API
-Version: 11.2.0
+Version: 11.2.1
 Maintainer: Piotr Kowal <pkowal@microstrategy.com>
 Authors@R: c(
     person("Piotr", "Kowal", email = "pkowal@microstrategy.com", role = c("cre")),
     person("Scott", "Rigney", email = "srigney@microstrategy.com", role = c("aut")),
     person("Zofia", "Rogala", email = "zrogala@microstrategy.com", role = c("ctb")),
     person("Piotr", "Czyz", email = "pczyz@microstrategy.com", role = c("ctb")),
-    person("Michał", "Drzazga", email = "mdrzazga@microstrategy.com", role = c("ctb")),
+    person("Michal", "Drzazga", email = "mdrzazga@microstrategy.com", role = c("ctb")),
     person("Oskar", "Duda", email = "oduda@microstrategy.com", role = c("ctb")),
     person("Filip", "Godlewski", email = "fgodlewski@microstrategy.com", role = c("ctb")),
     person("Ignacy", "Hologa", email = "ihologa@microstrategy.com", role = c("ctb")),
-    person("Adam", "Piotrowski", email = "apiotrowski@microstrategy.com", role = c("ctb"))
+    person("Adam", "Piotrowski", email = "apiotrowski@microstrategy.com", role = c("ctb")),
+    person("Wojciech", "Antonczyk", email = "wantonczyk@microstrategy.com", role = c("ctb"))
     )
 Description: Interface for creating data sets and extracting data through the 'MicroStrategy' REST API. Access the demo API at <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>.
 License: Apache License 2.0 | file LICENSE
@@ -22,9 +23,11 @@ Depends:
   R (>= 3.4.0)
 Imports:
   httr (>= 1.4.1),
+  crul,
   openssl (>= 1.4.1),
   jsonlite (>= 1.6),
   methods,
+  data.table,
   R6,
   miniUI,
   rstudioapi,
@@ -36,7 +39,7 @@ Suggests:
   rmarkdown,
   testthat
 VignetteBuilder: knitr
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Collate:
     'api-authentication.R'
     'api-cubes.R'
@@ -50,14 +53,14 @@ Collate:
     'microstrategy.R'
     'utils-model.R'
     'utils-formjson.R'
-    'utils-parsejson.R'
+    'utils-parser.R'
     'utils-encoder.R'
     'utils-filter.R'
     'utils-composefilter.R'
     'utils-files.R'
     'utils-gui.R'
-    'utils-fetching.R'
+    'utils-import.R'
     'utils-helpers.R'
-    'utils-update.R'
+    'utils-export.R'
     'server.R'
     'app.R'

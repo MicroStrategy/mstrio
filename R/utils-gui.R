@@ -31,8 +31,9 @@ displayExportSuccessMessage <- function(datasetName, time) {
   shinyjs::runjs(msg);
 }
 
-displayErrorMessage <- function(text) {
-  msg = paste0("backendManager.displayErrorMessage('",text,"');")
+displayErrorMessage <- function(error_type, error_message = '') {
+  parsed_error_message <- parse_error_message(error_message);
+  msg = paste0("backendManager.displayErrorMessage('",error_type,"', '",parsed_error_message,"');");
   shinyjs::runjs(msg);
   toggleImportOrExportProcess(0);
 }
@@ -89,7 +90,8 @@ sendDataframesFullDetailsToGui <- function(dataframe_org_name, dataframe_new_nam
   content[] <- lapply(content, function(x) gsub("\r?\n|\r", " (ENTER) ", x)) # remove line breaks from each cell, if exists, for Preview Table display
   toJSONify <- list("content" = content, "types" = model$get_model()$raw, "originalName" = dataframe_org_name)
   json <- jsonlite::toJSON(toJSONify)
-  json <- gsub("`", "_", json) # remove special quotes
+  json <- gsub('\\\\', '\\\\\\\\', json) # double backslashes
+  json <- gsub("`", "\\\\`", json) # escape backticks
   cmd <- paste0("backendManager.updateDataFrameContent(`",json,"`, '",dataframe_new_name,"', true);")
   shinyjs::runjs(cmd)
 }
@@ -107,4 +109,30 @@ sendPackageVersionToGui <- function() {
   version = utils::packageDescription('mstrio')['Version'];
   cmd <- paste0("backendManager.updatePackageVersionNumber('",version,"');")
   shinyjs::runjs(cmd)
+}
+
+finishDataModeling <- function(result, error_message = '') {
+  parsed_error_message <- parse_error_message(error_message);
+  cmd <- paste0("backendManager.finishDataModeling(",result,", '",parsed_error_message,"');")
+  shinyjs::runjs(cmd)
+}
+
+finishCubeUpdate <- function(result, dataset_name, error_message = '') {
+  parsed_error_message <- parse_error_message(error_message);
+  cmd <- paste0("backendManager.finishCubeUpdate(",result,", '",dataset_name,"', '", parsed_error_message,"');")
+  shinyjs::runjs(cmd)
+}
+
+displayUpdateLoadingMessage <- function(dataset_name) {
+  cmd <- paste0("backendManager.displayUpdateLoadingMessage('",dataset_name,"');")
+  shinyjs::runjs(cmd)
+}
+
+displayPublishLoadingMessage <- function(dataset_name) {
+  cmd <- paste0("backendManager.displayPublishLoadingMessage('",dataset_name,"');")
+  shinyjs::runjs(cmd)
+}
+
+displayGeneratedCode <- function(code) {
+  rstudioapi::documentNew(code)
 }

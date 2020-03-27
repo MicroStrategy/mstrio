@@ -4,24 +4,18 @@
 \name{Report}
 \alias{Report}
 \title{Extract a MicroStrategy report into a R Data.Frame}
-\format{An object of class \code{R6ClassGenerator} of length 25.}
-\usage{
-Report
-}
 \description{
 Access, filter, publish, and extract data from in-memory reports.
 Create a Report object to load basic information on a report dataset. Specify subset of report
 to be fetched through Report.apply_filters() and Report.clear_filters() . Fetch dataset through
+
 Report.to_dataframe() method.
+    Attributes:
+       connection: MicroStrategy connection object returned by `microstrategy.Connection()`.
+       report_id: Identifier of a pre-existing report containing the required data.
+       parallel (bool, optional): If True, use asynchronous requests to download data. If False (default), this
+         feature will be disabled.
 }
-\section{Fields}{
-
-\describe{
-\item{\code{connection}}{MicroStrategy connection object}
-
-\item{\code{report_id}}{Identifier of a report.}
-}}
-
 \examples{
 \donttest{
 # Create a connection object.
@@ -54,4 +48,81 @@ my_report$to_dataframe()
 my_report$dataframe
 }
 }
-\keyword{datasets}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{connection}}{MicroStrategy connection object}
+
+\item{\code{report_id}}{Identifier of a report.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{Report$new()}}
+\item \href{#method-to_dataframe}{\code{Report$to_dataframe()}}
+\item \href{#method-apply_filters}{\code{Report$apply_filters()}}
+\item \href{#method-clear_filters}{\code{Report$clear_filters()}}
+\item \href{#method-get_attr_elements}{\code{Report$get_attr_elements()}}
+\item \href{#method-clone}{\code{Report$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Report$new(connection, report_id, parallel = FALSE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-to_dataframe"></a>}}
+\subsection{Method \code{to_dataframe()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Report$to_dataframe(limit = NULL, callback = function(x, y) {
+})}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-apply_filters"></a>}}
+\subsection{Method \code{apply_filters()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Report$apply_filters(attributes = NULL, metrics = NULL, attr_elements = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clear_filters"></a>}}
+\subsection{Method \code{clear_filters()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Report$clear_filters()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_attr_elements"></a>}}
+\subsection{Method \code{get_attr_elements()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Report$get_attr_elements(verbose = TRUE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Report$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

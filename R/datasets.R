@@ -1,10 +1,10 @@
 # datasets.R
 # Create and interact with MicroStrategy datasets
 
-#' @title Create, update, and delete MicroStrategy datasets
+#' @title Create, update, delete and certify MicroStrategy datasets
 #'
-#' @description When creating a new dataset, provide a dataset name and an optional description. 
-#' When updating a pre-existing dataset, provide the dataset identifier. Tables are added to the 
+#' @description When creating a new dataset, provide a dataset name and an optional description.
+#' When updating a pre-existing dataset, provide the dataset identifier. Tables are added to the
 #' dataset in an iterative manner using `add_table()`.
 #' @field connection MicroStrategy connection object
 #' @field name Name of the dataset
@@ -28,30 +28,33 @@
 #' my_dataset$add_table("Employees", df1, "add")
 #' my_dataset$add_table("Salaries", df2, "add")
 #' my_dataset$create()
-#' 
-#' # By default Dataset$create() will upload the data to the Intelligence Server and publish the 
-#'  dataset. 
-#' # If you just want to create the dataset but not upload the row-level data, use 
+#'
+#' # By default Dataset$create() will upload the data to the Intelligence Server and publish the
+#'  dataset.
+#' # If you just want to create the dataset but not upload the row-level data, use
 #' Dataset$create(auto_upload=FALSE)
-#' 
-#' # followed by 
+#'
+#' # followed by
 #' Dataset$update()
 #' Dataset$publish()
-#' 
-#' # When the source data changes and users need the latest data for analysis and reporting in 
+#'
+#' # When the source data changes and users need the latest data for analysis and reporting in
 #' # MicroStrategy, mstrio allows you to update the previously created dataset.
-#' 
+#'
 #' ds <- Dataset$new(connection=conn, dataset_id="...")
 #' ds$add_table(name = "Stores", data_frame = stores_df, update_policy = 'update')
 #' ds$add_table(name = "Sales", data_frame = stores_df, update_policy = 'upsert')
 #' ds$update()
 #' ds$publish()
-#' 
-#' # By default, the raw data is transmitted to the server in increments of 25,000 rows. On very 
-#' # large datasets (>1 GB), it is beneficial to increase the number of rows transmitted to the 
+#'
+#' # By default, the raw data is transmitted to the server in increments of 25,000 rows. On very
+#' # large datasets (>1 GB), it is beneficial to increase the number of rows transmitted to the
 #' # Intelligence Server with each request. Do this with the chunksize parameter:
 #'
 #' ds$update(chunksize = 500000)
+#'
+#' # If you want to cerfify an existing dataset, use
+#' ds$certify()
 #' }
 #' @docType class
 #' @importFrom R6 R6Class
@@ -121,7 +124,7 @@ Dataset <- R6Class("Dataset",
         if(!all(to_attribute %in% names(data_frame))) {
           stop(paste0("Column name(s) in `to_attribute` were not found in `names(data_frame)`."))
         } else {
-          table["to_attribute"] <- to_attribute
+          table["to_attribute"] <- list(to_attribute)
         }
       }
 
@@ -129,7 +132,7 @@ Dataset <- R6Class("Dataset",
         if(!all(to_metric %in% names(data_frame))) {
           stop(paste0("Column name(s) in `to_metric` were not found in `names(data_frame)`."))
         } else {
-          table["to_metric"] <- to_metric
+          table["to_metric"] <- list(to_metric)
         }
       }
 
@@ -158,16 +161,11 @@ Dataset <- R6Class("Dataset",
                                             body=private$model_list$json,
                                             verbose=self$verbose)
 
-      if(http_error(response)) {
-        stop(private$response_handler(response, msg="Error creating new dataset definition."))
-      } else {
+      response <- content(response, as="parsed", type="application/json")
+      self$dataset_id <- response$id
 
-        response <- content(response, as="parsed", type="application/json")
-        self$dataset_id <- response$id
-
-        if(self$verbose) {
-          sprintf("Created dataset %s with ID: %s", self$name, self$dataset_id)
-        }
+      if (self$verbose) {
+        sprintf("Created dataset %s with ID: %s", self$name, self$dataset_id)
       }
 
       # if desired, automatically upload and publish the data to the new dataset
@@ -180,15 +178,12 @@ Dataset <- R6Class("Dataset",
           pub <- publish_status(connection=private$connection,
                                 dataset_id=self$dataset_id,
                                 session_id=self$session_id,
-                                verbose=self$verbose)
-          if(http_error(pub)) {
-            stop(private$response_handler(response, msg="Error creating new dataset definition."))
-          } else {
-            pub <- content(pub, as="parsed", type="application/json")
-            status <- pub$status
-            if(status == 1){
-              break
-            }
+                                verbose = self$verbose)
+
+          pub <- content(pub, as="parsed", type="application/json")
+          status <- pub$status
+          if(status == 1){
+            break
           }
         }
       }
@@ -204,10 +199,6 @@ Dataset <- R6Class("Dataset",
       private$form_upload_body()
       response <- upload_session(connection=private$connection, dataset_id=self$dataset_id,
                                  body=self$upload_body$json, verbose=self$verbose)
-
-      if(http_error(response)) {  # http != 200
-        stop(private$response_handler(response, msg="Error creating new data upload session"))
-      }
 
       response <- content(response, as="parsed", type="application/json")
       self$session_id <- response$uploadSessionId
@@ -238,7 +229,7 @@ Dataset <- R6Class("Dataset",
           response <- upload(private$connection, dataset_id=self$dataset_id, session_id=self$session_id, body=body, verbose=self$verbose)
 
           if(http_error(response)) {  # http != 200
-            private$response_handler(response, msg="Error uploading data.")
+            response_handler(response, msg = "Error uploading data.", throw_error=FALSE)
             publish_cancel(private$connection, self$dataset_id, self$session_id, verbose=self$verbose)
           }
 
@@ -261,7 +252,7 @@ Dataset <- R6Class("Dataset",
 
       if(http_error(response)) {  # http != 200
         # on error, cancel the previously uploaded data
-        private$response_handler(response, msg="Error publishing updated data. Cancelling upload.")
+        response_handler(response, msg="Error publishing updated data. Cancelling upload.", throw_error=FALSE)
         publish_cancel(private$connection, self$dataset_id, self$session_id, verbose=self$verbose)
       }
 
@@ -287,15 +278,21 @@ Dataset <- R6Class("Dataset",
 
       response <- delete_dataset(connection=private$connection,
                                  dataset_id=self$dataset_id,
+                                 verbose = self$verbose)
+
+      print(paste("Successfully deleted dataset with ID:", dataset_id))
+    },
+
+    certify = function() {
+      # Certify a dataset that was previously creted using the REST API
+
+      response <- toggle_dataset_certification(connection=private$connection,
+                                 dataset_id=self$dataset_id,
                                  verbose=self$verbose)
 
-      if(http_error(response)) {  # http != 200
-        private$response_handler(response, msg=paste("Error deleting dataset with ID:", dataset_id))
-      } else {
-        print(paste("Successfully deleted dataset with ID:", dataset_id))
-      }
+      return(response)
     }
-   ),
+  ),
 
   private = list(
 
@@ -317,7 +314,7 @@ Dataset <- R6Class("Dataset",
       body <- list("tables" = lapply(private$tables, function(x) {
         list("name" = x$table_name,
              "updatePolicy" = x$update_policy,
-             "columnHeaders" = names(x$data_frame))
+             "columnHeaders" = as.list(names(x$data_frame)))
       }))
       body_json <- toJSON(body, auto_unbox = TRUE)
 
@@ -332,14 +329,9 @@ Dataset <- R6Class("Dataset",
                                      dataset_id=self$dataset_id,
                                      verbose=self$verbose)
 
-      if(http_error(response)) {  # http != 200
-        private$response_handler(response=response,
-                                 msg="Error loading dataset definition. Check dataset ID.")
-      } else {
-        private$definition <- content(response, as="parsed", type="application/json")
-        self$name <- private$definition$name
-        self$dataset_id <- private$definition$id
-      }
+      private$definition <- content(response, as="parsed", type="application/json")
+      self$name <- private$definition$name
+      self$dataset_id <- private$definition$id
     },
 
     upload_progress = function(table_name, rows, total) {
@@ -347,19 +339,8 @@ Dataset <- R6Class("Dataset",
       sprintf("%s status: %s of %s rows", table_name, round(rows / total, 2) * 100, rows)
     },
 
-    response_handler = function(response, msg) {
-      # Generic error message handler for transactions against datasets
-
-      status <- http_status(response)
-      errors <- content(response)
-      stop(sprintf("%s\n HTTP Error: %s %s %s\n I-Server Error: %s %s",
-                   msg, response$status_code, status$reason, status$message, errors$code, errors$message),
-           call.=FALSE)
-
-    },
-
     check_param_len = function(param, msg, length) {
-      if(nchar(param) >= length) {
+      if(nchar(param) > length) {
         stop(msg)
       } else {
         return(TRUE)

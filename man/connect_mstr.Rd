@@ -4,8 +4,15 @@
 \alias{connect_mstr}
 \title{Create a MicroStrategy REST API connection}
 \usage{
-connect_mstr(base_url, username, password, project_name = NULL,
-  project_id = NULL, login_mode = 1, ssl_verify = TRUE)
+connect_mstr(
+  base_url,
+  username,
+  password,
+  project_name = NULL,
+  project_id = NULL,
+  login_mode = 1,
+  ssl_verify = TRUE
+)
 }
 \arguments{
 \item{base_url}{URL of the MicroStrategy REST API server}

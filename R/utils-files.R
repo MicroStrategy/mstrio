@@ -29,7 +29,7 @@ createMstrconnectorDirectory <- function() {
   },
   error = function(e){
     print(e$message)
-    displayErrorMessage('RfolderError')
+    displayErrorMessage('RfolderError', e$message)
   })
 }
 
@@ -79,6 +79,6 @@ saveStringToFile <- function(path, string) {
   },
   error = function(e) {
     print(e$message)
-    displayErrorMessage('RfileError')
+    displayErrorMessage('RfileError', e$message)
   })
 }
