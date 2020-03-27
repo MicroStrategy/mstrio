@@ -31,6 +31,7 @@
 #' model_info <- model$get_model()
 #' }
 #' @docType class
+#' @keywords internal
 #' @importFrom R6 R6Class
 #' @importFrom jsonlite toJSON
 #' @export
@@ -44,7 +45,7 @@ Model <- R6Class("Model",
     KEY_AS_ATTR = "to_attribute",
     KEY_AS_METR = "to_metric",
     KEY_UPDATE_POL = "update_policy",
-    INVALID_COL_CHARS = c(' ', '.'),  # check for invalid characters in column names
+    INVALID_COL_CHARS = c('.'),  # check for invalid characters in column names
     MAX_DESC_LEN = 250,  # max string length for dataset name and description
 
     # TODO: These should be private...
@@ -261,7 +262,7 @@ Model <- R6Class("Model",
 
       # check for presence of invalid characters in data frame column names
       if(any(names(table[[self$KEY_DATA_FRAME]]) %in% self$INVALID_COL_CHARS)) {
-        stop(paste("Column names cannot contain any whitespace or '.'"))
+        stop(paste("Column names cannot contain any dots"))
       }
 
     },

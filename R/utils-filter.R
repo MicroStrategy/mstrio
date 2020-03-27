@@ -8,6 +8,7 @@
 #' @field metrics List of ids for selected metrics.
 #' @field attr_elements List of ids for selected attribute elements.
 #' @docType class
+#' @keywords internal
 #' @importFrom R6 R6Class
 #' @importFrom jsonlite toJSON
 #' @export
@@ -113,19 +114,17 @@ Filter <- R6Class("Filter",
             
         return(vf)
       }
-
     },
 
     filter_body = function() {
-      fb = c()
+      fb = list()
       if(!is.null(self$attr_selected) || !is.null(self$metr_selected)) {
         fb[["requestedObjects"]] <- self$requested_objects()
       }
       if(!is.null(self$attr_elem_selected)) {
         fb[["viewFilter"]] <- self$view_filter()
-      }
-
-      return(toJSON(fb, auto_unbox = TRUE))
+      } 
+      return(fb)
     }
 
   ),

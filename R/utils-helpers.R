@@ -79,3 +79,46 @@ verifyColumnsNames <- function(dataframe_name, proper_columns) {
     })
   }
 }
+
+url_check <- function(url) {
+  if (!grepl("https?://.+$", url)) {
+    stop("Please check the validity of the base_url parameter. Typically of the form 'https://<<MSTR Domain>>/MicroStrategyLibrary/'")
+  }
+  url <- sub("/?api/?$", "", url)
+  url <- sub("/$", "", url)
+  return(url)
+}
+
+parse_error_message <- function(input_str) {
+  parsed <- input_str
+  # removes \n, \r and ' symbols from the input string
+  parsed <- gsub("[\r\n]", " ", parsed)
+  parsed <- gsub("[\']", "`", parsed)
+  return(parsed)
+}
+
+response_handler <- function(response, msg, throw_error = TRUE) {
+  # Generic error message handler for transactions against I-Server.
+  if (http_error(response)) {
+    status <- http_status(response)
+    content <- content(response, encoding = "UTF-8")
+    error_code <- content$code
+    error_msg <- content$message
+
+    if (isTRUE(throw_error)) {
+      if (is.null(error_code) | is.null(error_msg)) {
+        # If no information from I-Server
+        stop(sprintf("%s\n HTTP Error: %s %s %s", msg, response$status_code, status$reason, status$message),
+            call. = FALSE)
+      } else {
+        # Raises I-Server error message
+        stop(sprintf("%s\n HTTP Error: %s %s %s\n I-Server Error: %s %s",
+            msg, response$status_code, status$reason, status$message, error_code, error_msg),
+        call. = FALSE)
+      }
+    } else {
+      print(msg)
+    }
+  }
+}
+

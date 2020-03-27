@@ -4,21 +4,102 @@
 \name{Filter}
 \alias{Filter}
 \title{Pull MicroStrategy cubes (full or filtered)}
-\format{An object of class \code{R6ClassGenerator} of length 25.}
-\usage{
-Filter
-}
 \description{
 Pass ids of selected objects (attributes, metrics and elements).
 }
-\section{Fields}{
-
+\keyword{internal}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{attributes}}{List of ids for selected attributes.}
 
 \item{\code{metrics}}{List of ids for selected metrics.}
 
 \item{\code{attr_elements}}{List of ids for selected attribute elements.}
-}}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{attr_elements}}{List of ids for selected attribute elements.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{Filter$new()}}
+\item \href{#method-select}{\code{Filter$select()}}
+\item \href{#method-clear}{\code{Filter$clear()}}
+\item \href{#method-requested_objects}{\code{Filter$requested_objects()}}
+\item \href{#method-view_filter}{\code{Filter$view_filter()}}
+\item \href{#method-filter_body}{\code{Filter$filter_body()}}
+\item \href{#method-clone}{\code{Filter$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Filter$new(attributes = NULL, metrics = NULL, attr_elements = NULL)}\if{html}{\out{</div>}}
+}
 
-\keyword{datasets}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-select"></a>}}
+\subsection{Method \code{select()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Filter$select(object_id)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clear"></a>}}
+\subsection{Method \code{clear()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Filter$clear()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-requested_objects"></a>}}
+\subsection{Method \code{requested_objects()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Filter$requested_objects()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-view_filter"></a>}}
+\subsection{Method \code{view_filter()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Filter$view_filter()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-filter_body"></a>}}
+\subsection{Method \code{filter_body()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Filter$filter_body()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Filter$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}
