@@ -34,7 +34,7 @@ install.packages("mstrio")
 ## Versioning
 Functionalities may be added to **mstrio** either in combination with annual MicroStrategy platform releases or through updates to platform releases. To ensure compatibility with APIs supported by your MicroStrategy environment, it is recommended to install a version of **mstrio** that corresponds to the version number of your MicroStrategy environment.
 
-The current version of mstrio is 11.2.1 and is supported on MicroStrategy 2019 Update 4 (11.1.4) and later. To leverage MicroStrategy for RStudio, mstrio 11.1.4 and MicroStrategy 2019 Update 4 (11.1.4) are required.
+The current version of mstrio is 11.2.1 and is supported on MicroStrategy 2019 Update 4 (11.1.4) and later. To leverage MicroStrategy for RStudio, mstrio (11.1.4) and MicroStrategy 2019 Update 4 (11.1.4) or higher are required.
 
 If you intend to use mstrio with MicroStrategy version older than 11.1.4, refer to the [CRAN package archive][cran_archive] to download mstrio 10.11.1, which is supported on:
 * MicroStrategy 2019 (11.1)
