@@ -34,7 +34,7 @@ install.packages("mstrio")
 ## Versioning
 Functionalities may be added to **mstrio** either in combination with annual MicroStrategy platform releases or through updates to platform releases. To ensure compatibility with APIs supported by your MicroStrategy environment, it is recommended to install a version of **mstrio** that corresponds to the version number of your MicroStrategy environment.
 
-The current version of mstrio is 11.2.1 and is supported on MicroStrategy 2019 Update 4 (11.1.4) and later. To leverage MicroStrategy for RStudio, mstrio 11.2.1 and MicroStrategy 2019 Update 4 (11.1.4) are required.
+The current version of mstrio is 11.2.1 and is supported on MicroStrategy 2019 Update 4 (11.1.4) and later. To leverage MicroStrategy for RStudio, mstrio 11.1.4 and MicroStrategy 2019 Update 4 (11.1.4) are required.
 
 If you intend to use mstrio with MicroStrategy version older than 11.1.4, refer to the [CRAN package archive][cran_archive] to download mstrio 10.11.1, which is supported on:
 * MicroStrategy 2019 (11.1)
@@ -90,14 +90,15 @@ conn <- connect_mstr(base_url=base_url, username=username, password=password, pr
 ```
 ### Import data from Cubes and Reports
 In **mstrio**, Reports and Cubes have the same API, so you can use these examples for importing Report data to a DataFrame, too.
+In some cases, for better performance, parallel chunks' download is possible by setting parallel flag to `TRUE`. This feature is disabled by default, as sequential download is more stable.
 To import the contents of a published cube into a DataFrame for analysis in R, use the `Cube` class:
 ```R
-my_cube <- Cube$new(connection=conn, cube_id="...")
+my_cube <- Cube$new(connection=conn, cube_id="...", parallel=FALSE)
 df <- my_cube$to_dataframe()
 ```
 To import Reports into a DataFrame for analysis in R use the optimized `Report` class:
 ```R
-my_report <- Report$new(connection=conn, report_id="...")
+my_report <- Report$new(connection=conn, report_id="...", parallel=FALSE)
 df <- my_report$to_dataframe()
 ```
 By default, all rows are imported when `my_cube$to_dataframe()` or `my_report$to_dataframe()` are called. Filter the contents of a cube/report by passing the object IDs for the metrics, attributes, and attribute elements you need.
