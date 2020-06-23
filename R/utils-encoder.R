@@ -8,7 +8,7 @@ library(R6)
 #' @importFrom R6 R6Class
 #' @importFrom jsonlite toJSON
 #' @importFrom openssl base64_encode
-#'
+#' @keywords internal
 Encoder <- R6Class("Encoder",
 
   public = list(

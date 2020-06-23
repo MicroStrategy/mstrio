@@ -45,6 +45,7 @@ p$to_dataframe()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Parser$new(response)}\if{html}{\out{</div>}}
@@ -53,6 +54,7 @@ p$to_dataframe()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-parse"></a>}}
+\if{latex}{\out{\hypertarget{method-parse}{}}}
 \subsection{Method \code{parse()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Parser$parse(response)}\if{html}{\out{</div>}}
@@ -61,6 +63,7 @@ p$to_dataframe()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-to_dataframe"></a>}}
+\if{latex}{\out{\hypertarget{method-to_dataframe}{}}}
 \subsection{Method \code{to_dataframe()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Parser$to_dataframe()}\if{html}{\out{</div>}}
@@ -69,6 +72,7 @@ p$to_dataframe()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

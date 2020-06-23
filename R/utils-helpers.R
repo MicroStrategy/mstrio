@@ -117,7 +117,14 @@ response_handler <- function(response, msg, throw_error = TRUE) {
         call. = FALSE)
       }
     } else {
-      print(msg)
+      if (is.null(error_code) | is.null(error_msg)) {
+        # If no information from I-Server
+        print(sprintf("%s\n HTTP Error: %s %s %s", msg, response$status_code, status$reason, status$message))
+      } else {
+        # Raises I-Server error message
+        print(sprintf("%s\n HTTP Error: %s %s %s\n I-Server Error: %s %s",
+            msg, response$status_code, status$reason, status$message, error_code, error_msg))
+      }
     }
   }
 }

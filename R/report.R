@@ -6,20 +6,26 @@
 #'
 #' @description Access, filter, publish, and extract data from in-memory reports.
 #' Create a Report object to load basic information on a report dataset. Specify subset of report
-#' to be fetched through Report.apply_filters() and Report.clear_filters() . Fetch dataset through
-#'
-#' Report.to_dataframe() method.
-#'     Attributes:
-#'        connection: MicroStrategy connection object returned by `microstrategy.Connection()`.
-#'        report_id: Identifier of a pre-existing report containing the required data.
-#'        parallel (bool, optional): If True, use asynchronous requests to download data. If False (default), this
-#'          feature will be disabled.
+#' to be fetched through Report$apply_filters() and Report$clear_filters() . Fetch dataset through
+#' Report$to_dataframe() method.
 #' @field connection MicroStrategy connection object
 #' @field report_id Identifier of a report.
+#' @field parallel If TRUE, downloads report data asynchronously. FALSE by default.
+#' @field name Report name.
+#' @field attributes Report attributes.
+#' @field metrics Report metrics
+#' @field attr_elements Report attribute elements.
+#' @field selected_attributes Attributes selected for filtering.
+#' @field selected_metrics Metrics selected for filtering.
+#' @field selected_attr_elements Attribute elements selected for filtering.
+#' @field dataframe Dataframe containing data fetched from the Report.
+#' @field cross_tab boolean for filtering cross tabbed reports logic
+#' @field cross_tab_filters view filters for cross tab reports
+#' @field instance_id Identifier of an instance if report instance has been already initialized.
 #' @examples
 #' \donttest{
 #' # Create a connection object.
-#' connection = connect_mstr(base_url, username, password, project_name)
+#' connection = Connection$new(base_url, username, password, project_name)
 #'
 #' # Create a report object.
 #' my_report <- Report$new(connection, report_id)
@@ -58,7 +64,7 @@ Report <- R6Class("Report",
 #instance variables
     connection = NULL,
     report_id = NULL,
-    offset = 0,
+    parallel = FALSE,
     name = NULL,
     attributes = NULL,
     metrics = NULL,
@@ -68,31 +74,35 @@ Report <- R6Class("Report",
     selected_attr_elements = NULL,
     cross_tab=FALSE,
     dataframe = NULL,
-    filters = NULL,
-    offsets = NULL,
-    cookies = NULL,
-    size_limit = 10000000,
-    initial_limit = 1000,
-    parallel = FALSE,
     cross_tab_filters = NULL,
+    instance_id = NULL,
 
-    initialize = function(connection, report_id, parallel=FALSE) {
+#' @description Initialize an instance of a report.
+#' @param connection MicroStrategy connection object. See Connection class.
+#' @param report_id Identifier of a pre-existing report containing the required data.
+#' @param instance_id Identifier of an instance if report instance has been already initialized, NULL by default.
+#' @param parallel (bool, optional):  If True, utilize optimal number of threads to increase the download
+#' speed. If False (default), this feature will be disabled.
+    initialize = function(connection, report_id, instance_id=NULL, parallel=FALSE) {
       # Initialize report contructor.
-
       self$connection <- connection
       self$report_id <- report_id
+      self$instance_id <- instance_id
       self$parallel <- parallel
       private$load_definition()
-      self$filters <- Filter$new(attributes = self$attributes,
-                                 metrics = self$metrics,
-                                 attr_elements = NULL)
 
-      if (self$cross_tab) {
-        self$filters$select(unlist(unname(self$attributes)))
-        self$filters$select(unlist(unname(self$metrics)))
-      }
+      private$filters <- Filter$new(attributes = self$attributes,
+                                    metrics = self$metrics,
+                                    attr_elements=NULL)
+      self$selected_attributes <- private$filters$selected_attributes
+      self$selected_metrics <- private$filters$selected_metrics
     },
 
+#' @description Extract contents of a Report into a R Data Frame.
+#' @param limit (int, optional): Used to control data extraction behaviour on report with a large number of rows. By
+#' default the limit is calculated automatically. If TRUE, overrides automatic limit.
+#' @param callback used by the GUI to extract the progress information
+#' @return Dataframe with data fetched from the given Report.
     to_dataframe = function(limit = NULL, callback = function(x, y) { }) {
       # Extract contents of a report into a R Data Frame.
 
@@ -103,22 +113,19 @@ Report <- R6Class("Report",
         warning("Limit has to be larger than 0, new limit will be set automatically", immediate. = TRUE)
       } else {
         auto <- FALSE
-        self$initial_limit <- limit
+        private$initial_limit <- limit
       }
 
-      body = self$filters$filter_body()
-      if (compareVersion(self$connection@iserver_version,"11.2.0100") %in% c(0,1)){
-        body[["subtotals"]][["visible"]] <- 'false'
+      if (is.null(self$instance_id)) {
+        response <- private$initialize_report()
+      } else {
+        response <- tryCatch({
+          private$get_chunk(instance_id=self$instance_id, offset=0, limit=private$initial_limit)
+        },
+        error = function(e) {
+          private$initialize_report()
+        })
       }
-      if (length(body) == 0) { body <- c() }
-      body <- toJSON(body, auto_unbox = TRUE)
-      # Get first report instance
-      response <- report_instance(connection = self$connection,
-                                  report_id = self$report_id,
-                                  offset = self$offset,
-                                  limit = self$initial_limit,
-                                  body = body)
-
       #getting size of the first response in bytes, to use in auto chunk sizing
       size_bytes <- as.integer(object.size(response))
 
@@ -135,7 +142,7 @@ Report <- R6Class("Report",
       if (pagination$current != pagination$total) {
         #auto select chunk limit based on desired chunk size in bytes
         if (auto == TRUE) {
-          limit <- max(1000, round(((self$initial_limit * self$size_limit) / size_bytes), digits = 0))
+          limit <- max(1000, round(((private$initial_limit * private$size_limit) / size_bytes), digits = 0))
           message(sprintf("Chunk limit set automatically to %s", limit))
         }
         # Create vector of offset parameters to iterate over
@@ -143,28 +150,28 @@ Report <- R6Class("Report",
         while (tail(offsets, 1) + limit < pagination$total) {
           offsets <- append(offsets, tail(offsets, 1) + limit)
         }
-        self$offsets <- offsets
 
         #asynchronous download of chunks and dataframe creation
         if (isTRUE(self$parallel)) {
-          future <- private$fetch_future(self$offsets, limit = limit, conn = self$connection, cookies = self$cookies,
+          future <- private$fetch_future(offsets, limit = limit, conn = self$connection,
+                                         cookies = private$cookies,
                                          report_id = self$report_id, instanceId = instance_id)
           future_responses <- AsyncVaried$new(.list = future)
           future_responses$request()
           failed_chunks_idx <- which("200" != future_responses$status_code())
           future_responses <- future_responses$parse()
-          future_responses <- lapply(future_responses, fromJSON, simplifyVector = FALSE, simplifyDataFrame = FALSE,
-                                     simplifyMatrix = FALSE)
+          future_responses <- lapply(future_responses, fromJSON, simplifyVector = FALSE,
+                                     simplifyDataFrame = FALSE, simplifyMatrix = FALSE)
           if (length(failed_chunks_idx) != 0) {
             future_responses <- private$retry_chunks(failed_chunks_idx = failed_chunks_idx,
-                                                     future_responses, instance_id, self$offsets, limit)
+                                                     future_responses, instance_id, offsets, limit)
           }
           sapply(future_responses, p$parse)
           callback(pagination$total, pagination$total)
 
         } else {
           #sequential download of chunks and dataframe creation
-          sapply(c(self$offsets), private$fetch_chunk, p = p, instance_id = instance_id, limit = limit,
+          sapply(c(offsets), private$fetch_chunk, p = p, instance_id = instance_id, limit = limit,
                                                     pagination = pagination, callback = callback)
           callback(pagination$total, pagination$total)
         }
@@ -195,10 +202,17 @@ Report <- R6Class("Report",
       return(self$dataframe)
     },
 
-    apply_filters = function(attributes = NULL, metrics = NULL, attr_elements = NULL) {
-      # Instantiate the filter object and download all attr_elements of the report.
-      # Apply filters on the report data so only the chosen attributes, metrics,
-      # and attribute elements are retrieved from the Intelligence Server.
+#' @description Apply filters on the report data so only the chosen attributes, metrics, and attribute elements are
+#' retrieved from the Intelligence Server.
+#' @param attributes (list or None, optional): ID numbers of attributes to be included in the filter. If list is
+#' empty, no attributes will be selected and metric data will be aggregated.
+#' @param metrics (list or None, optional): ID numbers of metrics to be included in the filter. If list is empty,
+#' no metrics will be selected.
+#' @param attr_elements (list or None, optional): Attributes' elements to be included in the filter.
+#' @param operator (character, optional): Supported view filter operators are either "In" or "NotIn". This defines
+#' whether data will include ("In") or exclude ("NotIn") the supplied attr_elements values.
+    apply_filters = function(attributes = NULL, metrics = NULL, attr_elements = NULL, operator = "In") {
+      private$filters$operator <- operator
 
       if (self$cross_tab == TRUE) {
         if (is.null(attributes) & is.null(metrics) & is.null(attr_elements)) {
@@ -206,74 +220,45 @@ Report <- R6Class("Report",
           self$cross_tab_filters <- list(attributes = attributes, metrics = metrics, attr_elements = attr_elements)
         }
       } else {
-        #1st check: if params is null finish
-        if (is.null(attributes) & is.null(metrics) & is.null(attr_elements)) {
-        }
-        else {
-          #2nd check: if self.attr_elem is null
-          if (!is.null(attr_elements)) {
-            #load attr_elem and save the result to report instance
-            self$get_attr_elements()
-          }
-          # 3rd check if filter object is created with attr_elem and if report has attr_elem downloaded
-          if (is.null(self$filters$attr_elems) & !is.null(attr_elements)) {
-            self$filters <- Filter$new(attributes = self$attributes,
-                                            metrics = self$metrics,
-                                            attr_elements = self$attr_elements)
-          }
+        # Clear already filtered objects from the filter object if a new filter is applied
+        if (!is.null(attributes)) { private$filters$clear("attributes") }
+        if (!is.null(metrics)) { private$filters$clear("metrics") }
+        if (!is.null(attr_elements)) { private$filters$clear("attribute_elements") }
 
-          # Previous functionality of apply_filters: set filters as specified in apply filters
-          if (!is.null(attributes)) {
-            if (length(attributes) == 0) {
-              self$filters$attr_selected <- list()
-            } else {
-              self$filters$select(attributes)
-            }
-          }
-          # Else do nothing
+        # Select the objects
+        if (!is.null(attributes)) { private$filters$select(attributes, "automatic") }
+        if (!is.null(metrics)) { private$filters$select(metrics, "automatic") }
+        if (length(attr_elements) > 0) { private$filters$select(attr_elements, "attribute_elements") }
 
-          if (!is.null(metrics)) {
-            if (length(metrics) == 0) {
-              self$filters$metr_selected <- list()
-            } else {
-              self$filters$select(metrics)
-            }
-          }
-          # Else do nothing
-
-          if (length(attr_elements) > 0) {
-            self$filters$select(attr_elements)
-          }
-
-          # Assign filter values in the report instance
-          self$selected_attributes <- self$filters$attr_selected
-          self$selected_metrics <- self$filters$metr_selected
-          self$selected_attr_elements <- self$filters$attr_elem_selected
-        }
+        # Assign filter values in the report instance
+        self$selected_attributes <- private$filters$selected_attributes
+        self$selected_metrics <- private$filters$selected_metrics
+        self$selected_attr_elements <- private$filters$selected_attr_elements
       }
-
-
     },
 
+#' @description Clear previously set filters, allowing all attributes, metrics, and attribute elements to be retrieved.
     clear_filters = function() {
-      # Clear previously set filters, allowing all attributes, metrics,
-      # and attribute elements to be retrieved from the Intelligence Server.
-      self$filters$clear()
 
-      if (self$cross_tab) {
-        self$filters$select(unlist(unname(self$attributes)))
-        self$filters$select(unlist(unname(self$metrics)))
-      }
+      private$filters$clear()
+      # Select all attributes/metrics by default when no filters are specified
+      private$filters$select(self$attributes, "automatic")
+      private$filters$select(self$metrics, "automatic")
 
-      self$selected_attributes <- self$filters$attr_selected
-      self$selected_metrics <- self$filters$metr_selected
-      self$selected_attr_elements <- self$filters$attr_elem_selected
+      self$selected_attributes <- private$filters$selected_attributes
+      self$selected_metrics <- private$filters$selected_metrics
+      self$selected_attr_elements <- private$filters$selected_attr_elements
     },
 
+#' @description Load all attribute elements of the Report. Accessible via Report$attr_elements.
+#' Fetching attriubte elements will also allow for validating attriute elements by the filter object.
+#' @param verbose If TRUE, displays list of attribute elements.
     get_attr_elements = function(verbose = TRUE) {
-      # Load elements of all attributes to be accesibile by Report$attr_elements.
       if (is.null(self$attr_elements)) {
         private$load_attr_elements()
+
+        # add downloaded attribute elements to the filter object
+        private$filters$attr_elements = unlist(sapply(self$attr_elements, function(attr) { attr$elements }), use.names = TRUE)
       }
       if (verbose) self$attr_elements
     }
@@ -282,70 +267,78 @@ Report <- R6Class("Report",
 
   private = list(
 
+    size_limit = 10000000,
+    initial_limit=1000,
+    cookies = NULL,
+    filters = NULL,
+    debug = FALSE,
+
     load_definition = function() {
       # Get the definition of a report, including attributes and metrics.
-      response <- report(connection = self$connection, report_id = self$report_id)
-
-      self$cookies <- paste0('JSESSIONID=', response$cookies$value[[1]], '; iSession=', response$cookies$value[[2]])
+      response <- report(connection = self$connection, report_id = self$report_id, verbose=private$debug)
+      private$cookies <- paste0("JSESSIONID=", response$cookies$value[[1]], "; iSession=", response$cookies$value[[2]])
 
       response <- content(response)
-      self$name <- response$name
-      objects <- response$definition$grid
-      self$cross_tab <- objects$crossTab
+      grid <- response$definition$grid
       available_objects <- response$definition$availableObjects
+      self$name <- response$name
+      self$cross_tab <- grid$crossTab
 
       # Check if report have custom groups or consolidations
-      if (length(available_objects$customGroups)>0) {
-        stop(sprintf("Reports with custom groups are not supported.",
-             call. = FALSE))
+      if (length(available_objects$customGroups) > 0) {
+        stop(sprintf("Reports with custom groups are not supported.", call. = FALSE))
       }
-      if (length(available_objects$consolidations)>0){
-        stop(sprintf("Reports with consolidations are not supported.",
-             call. = FALSE))
+      if (length(available_objects$consolidations) > 0){
+        stop(sprintf("Reports with consolidations are not supported.", call. = FALSE))
       }
-      if (self$cross_tab==TRUE) {
-        # metrics_position <- objects$metricsPosition
-        # if (metrics_position$axis=="rows"){
-        #   msg = paste("Unable to uncrosstab report. Reports with metrics in the rows position are not",
-        #               "supported at the moment. Try moving all metrics to the columns position.")
-        #   stop(sprintf(msg, call. = FALSE))
-        # }
-        x_attributes <- list()
-        x_metrics <- NULL
-        for (object in objects$rows) {
-          if (object$type == 'attribute') {
-            x_attributes <- append(x_attributes, list(object))
-          } else {
-            x_metrics <- object$elements
-          }
-        }
-        for (object in objects$columns) {
-          if (object$type == 'attribute') {
-            x_attributes <- append(x_attributes, list(object))
-          } else {
-            x_metrics <- object$elements
-          }
-        }
-        self$attributes <- lapply(x_attributes, function(attr) attr$id)
-        names(self$attributes) <- lapply(x_attributes, function(attr) attr$name)
-        self$metrics <- lapply(x_metrics, function(metr) metr$id)
-        names(self$metrics) <- lapply(x_metrics, function(metr) metr$name)
+
+      full_attributes <- list()
+      for (row in grid$rows) {
+        if (row$type == 'attribute') { full_attributes <- append(full_attributes, list(row)) }
       }
-      else {
-        self$attributes <- lapply(objects$rows, function(attr) attr$id)
-        names(self$attributes) <- lapply(objects$rows, function(attr) attr$name)
-        self$metrics <- lapply(objects$columns[[1]]$elements, function(metr) metr$id)
-        names(self$metrics) <- lapply(objects$columns[[1]]$elements, function(metr) metr$name)
+      for (column in grid$columns) {
+        if (column$type == 'attribute') {full_attributes <- append(full_attributes, list(column))}
       }
+      self$attributes <- lapply(full_attributes, function(attr) attr$id)
+      names(self$attributes) <- lapply(full_attributes, function(attr) attr$name)
+
+      # Retrieve metrics from the report grid (metrics selected only in the report)
+      if (!is.null(metrics_position <- grid$metricsPosition)) {
+        full_metrics <- grid[[metrics_position$axis]][[metrics_position$index + 1]][["elements"]]
+        self$metrics <- lapply(full_metrics, function(metr) metr$id)
+        names(self$metrics) <- lapply(full_metrics, function(metr) metr$name)
+      } else { self$metrics <- list() }
+    },
+
+    initialize_report = function() {
+      body <- private$filters$filter_body()
+      if (compareVersion(self$connection$iserver_version, "11.2.0100") %in% c(0, 1)){
+        body[["subtotals"]][["visible"]] <- "false"
+      }
+      if (length(body) == 0) { body <- c() }
+      body <- toJSON(body, auto_unbox = TRUE)
+
+      # Get first report instance
+      return(report_instance(connection = self$connection,
+                             report_id = self$report_id,
+                             body = body,
+                             offset = 0,
+                             limit = private$initial_limit,
+                             verbose = private$debug))
+    },
+
+    get_chunk = function(instance_id, offset, limit) {
+      return(report_instance_id(connection = self$connection,
+                                report_id = self$report_id,
+                                instance_id = instance_id,
+                                offset = offset,
+                                limit = limit,
+                                verbose = private$debug))
     },
 
     fetch_chunk = function(p, instance_id, offset_, limit, pagination, callback) {
       #fetching chunk for sequential download
-      response <- report_instance_id(connection = self$connection,
-                                     report_id = self$report_id,
-                                     instance_id = instance_id,
-                                     offset = offset_,
-                                     limit = limit)
+      response <- private$get_chunk(instance_id, offset_, limit)
       p$parse(response = content(response))
       callback(offset_, pagination$total)
     },
@@ -354,9 +347,9 @@ Report <- R6Class("Report",
       #fetching a set of http requests for async downloading
       future <- list()
 
-      url = paste0(conn@base_url, "/api/v2/reports/", report_id, "/instances/", instanceId)
-      all_headers = list("X-MSTR-AuthToken" = conn@auth_token,
-                   "X-MSTR-ProjectID" = conn@project_id,
+      url <- paste0(conn$base_url, "/api/v2/reports/", report_id, "/instances/", instanceId)
+      all_headers <- list("X-MSTR-AuthToken" = conn$auth_token,
+                   "X-MSTR-ProjectID" = conn$project_id,
                    "Cookie" = cookies)
 
       for (offset_ in offsets) {
@@ -378,7 +371,8 @@ Report <- R6Class("Report",
                                        report_id = self$report_id,
                                        instance_id = instance_id,
                                        offset = offsets[[chunk]],
-                                       limit = limit)
+                                       limit = limit,
+                                       verbose = private$debug)
         parsed_future_responses[[chunk]] <- content(response)
       }
       return(parsed_future_responses)
@@ -400,8 +394,9 @@ Report <- R6Class("Report",
                                        report_id = self$report_id,
                                        attribute_id = attr_id,
                                        offset = 0,
-                                       limit = limit)
-          total <- as.numeric(response$headers$'x-mstr-total-count')
+                                       limit = limit,
+                                       verbose = private$debug)
+          total <- as.numeric(response$headers$"x-mstr-total-count")
           response <- content(response)
         }
         else if (response[["status_code"]] != 200) {
@@ -409,12 +404,13 @@ Report <- R6Class("Report",
                                        report_id = self$report_id,
                                        attribute_id = attr_id,
                                        offset = 0,
-                                       limit = limit)
-          total <- as.numeric(response$headers$'x-mstr-total-count')
+                                       limit = limit,
+                                       verbose = private$debug)
+          total <- as.numeric(response$headers$"x-mstr-total-count")
           response <- content(response)
         } else if (response[["status_code"]] == 200){
           total <- as.numeric(response[["response_headers"]][["x-mstr-total-count"]])
-          response <- response$parse(encoding='UTF-8')
+          response <- response$parse(encoding="UTF-8")
           response <- fromJSON(response, simplifyVector = FALSE, simplifyDataFrame = FALSE, simplifyMatrix = FALSE)
         }
 
@@ -426,10 +422,10 @@ Report <- R6Class("Report",
 
         # Fetch the rest of elements if their number exceeds the limit.
         if (total > limit) {
-          offsets = seq(from = limit, to = total, by = limit)
+          offsets <- seq(from = limit, to = total, by = limit)
 
           for (offset_ in offsets) {
-            response <- report_elements(conn, report_id, attr_id, offset_, limit)
+            response <- report_elements(conn, report_id, attr_id, offset_, limit, verbose = private$debug)
 
             chunk <- lapply(content(response), function(elem) unlist(elem$id))
             names(chunk) <- lapply(content(response), function(elem) {
@@ -447,12 +443,12 @@ Report <- R6Class("Report",
       fetch_future_attr_elems = function(attributes, limit = 160000, conn, cookies, report_id, offset = 0) {
         future <- list()
 
-        all_headers = list('X-MSTR-AuthToken' = conn@auth_token,
-                    'X-MSTR-ProjectID' = conn@project_id,
-                    'Cookie' = cookies)
+        all_headers <- list("X-MSTR-AuthToken" = conn$auth_token,
+                    "X-MSTR-ProjectID" = conn$project_id,
+                    "Cookie" = cookies)
 
         for (attr_id in attributes) {
-          url = paste0(conn@base_url, '/api/reports/', report_id, '/attributes/', attr_id, '/elements')
+          url <- paste0(conn$base_url, "/api/reports/", report_id, "/attributes/", attr_id, "/elements")
           respons <- HttpRequest$new(
             url = url,
             headers = all_headers
@@ -465,8 +461,9 @@ Report <- R6Class("Report",
       }
 
       #fetching attribute elements workflow
-      if(self$parallel == TRUE) {
-        future <- fetch_future_attr_elems(attributes = self$attributes, conn = self$connection, cookies = self$cookies, report_id = self$report_id)
+      if (self$parallel == TRUE) {
+        future <- fetch_future_attr_elems(attributes = self$attributes, conn = self$connection,
+                                          cookies = private$cookies, report_id = self$report_id)
         future_responses <- AsyncVaried$new(.list = future)
         future_responses$request()
         responses_future <- future_responses$responses()
@@ -480,14 +477,16 @@ Report <- R6Class("Report",
             link[[1]][[9]] -> attr_id
           }
           list("id" = attr_id,
-              "elements" = get_single_attr_elements(response=response, conn = self$connection, report_id = self$report_id, limit = 160000, attr_id = attr_id))
+              "elements" = get_single_attr_elements(response = response, conn = self$connection,
+                           report_id = self$report_id, limit = 160000, attr_id = attr_id))
         })
         names(self$attr_elements) <- names(self$attributes)
       }
       else {
         self$attr_elements <- lapply(self$attributes, function(attr_id) {
         list("id" = attr_id,
-             "elements" = get_single_attr_elements(conn = self$connection, report_id = self$report_id, limit = 160000, attr_id = attr_id))
+             "elements" = get_single_attr_elements(conn = self$connection, report_id = self$report_id,
+                          limit = 160000, attr_id = attr_id))
         })
       }
     }

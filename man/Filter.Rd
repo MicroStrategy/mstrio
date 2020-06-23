@@ -3,26 +3,29 @@
 \docType{class}
 \name{Filter}
 \alias{Filter}
-\title{Pull MicroStrategy cubes (full or filtered)}
+\title{Create filters that may be passed to MicroStrategy Report/Cube objects.}
 \description{
-Pass ids of selected objects (attributes, metrics and elements).
+Pass ids of all objects and selected objects (attributes, metrics and elements)
+and the generate the requested objects and view filter body for the pull Data API.
 }
 \keyword{internal}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{attributes}}{List of ids for selected attributes.}
+\item{\code{attributes}}{List of ids of all attribute objects of given cube/report.}
 
-\item{\code{metrics}}{List of ids for selected metrics.}
+\item{\code{metrics}}{List of ids of all metrics objects of given cube/report.}
 
-\item{\code{attr_elements}}{List of ids for selected attribute elements.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{attr_elements}}{List of ids for selected attribute elements.}
+\item{\code{attr_elements}}{(optional) List of ids of all attribute elements of given cube/report.}
+
+\item{\code{selected_attributes}}{List of ids for selected attributes.}
+
+\item{\code{selected_metrics}}{List of ids for selected metrics.}
+
+\item{\code{selected_attr_elements}}{List of ids for selected attribute elements.}
+
+\item{\code{operator}}{(character, optional): Supported view filter operators are either "In" or "NotIn". This defines
+whether data will include ("In") or exclude ("NotIn") the supplied attr_elements values.}
 }
 \if{html}{\out{</div>}}
 }
@@ -31,55 +34,78 @@ Pass ids of selected objects (attributes, metrics and elements).
 \itemize{
 \item \href{#method-new}{\code{Filter$new()}}
 \item \href{#method-select}{\code{Filter$select()}}
+\item \href{#method-select_attr_elements}{\code{Filter$select_attr_elements()}}
 \item \href{#method-clear}{\code{Filter$clear()}}
-\item \href{#method-requested_objects}{\code{Filter$requested_objects()}}
-\item \href{#method-view_filter}{\code{Filter$view_filter()}}
 \item \href{#method-filter_body}{\code{Filter$filter_body()}}
 \item \href{#method-clone}{\code{Filter$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize a filter instance
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Filter$new(attributes = NULL, metrics = NULL, attr_elements = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Filter$new(attributes, metrics, attr_elements = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{attributes}}{(list): List of all attributes IDs in the cube/report}
+
+\item{\code{metrics}}{(list): List of all metrics IDs in the cube/report}
+
+\item{\code{attr_elements}}{(list, optional): List of all attributes elements IDs in the cube/report. If not #' provided the attribute element object will not be validated on selection}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-select"></a>}}
+\if{latex}{\out{\hypertarget{method-select}{}}}
 \subsection{Method \code{select()}}{
+Select attribute/metric/attr_element objects to filter data. Selecting empty lists or vectors is
+supported and means that all objects (attributes/metrics) are deselected. This method eliminates duplicates and
+provides type validation for attributes/metrics and optionally attribute elements (if attr_elements are fetched
+before)
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Filter$select(object_id)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Filter$select(object_id, object_type = "automatic")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{object_id}}{(list or character vector) Object IDs to be selected. Provide empty list if the objects of the
+chosen type are to be deselected.
+nshould be selected}
+
+\item{\code{object_type}}{(character or NULL, optional) either 'attribute_elements', 'automatic'}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-select_attr_elements"></a>}}
+\if{latex}{\out{\hypertarget{method-select_attr_elements}{}}}
+\subsection{Method \code{select_attr_elements()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Filter$select_attr_elements(attribute_elements)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clear"></a>}}
+\if{latex}{\out{\hypertarget{method-clear}{}}}
 \subsection{Method \code{clear()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Filter$clear()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-requested_objects"></a>}}
-\subsection{Method \code{requested_objects()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Filter$requested_objects()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-view_filter"></a>}}
-\subsection{Method \code{view_filter()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Filter$view_filter()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Filter$clear(object = "all")}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-filter_body"></a>}}
+\if{latex}{\out{\hypertarget{method-filter_body}{}}}
 \subsection{Method \code{filter_body()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Filter$filter_body()}\if{html}{\out{</div>}}
@@ -88,6 +114,7 @@ Pass ids of selected objects (attributes, metrics and elements).
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

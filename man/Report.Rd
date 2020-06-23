@@ -7,19 +7,13 @@
 \description{
 Access, filter, publish, and extract data from in-memory reports.
 Create a Report object to load basic information on a report dataset. Specify subset of report
-to be fetched through Report.apply_filters() and Report.clear_filters() . Fetch dataset through
-
-Report.to_dataframe() method.
-    Attributes:
-       connection: MicroStrategy connection object returned by `microstrategy.Connection()`.
-       report_id: Identifier of a pre-existing report containing the required data.
-       parallel (bool, optional): If True, use asynchronous requests to download data. If False (default), this
-         feature will be disabled.
+to be fetched through Report$apply_filters() and Report$clear_filters() . Fetch dataset through
+Report$to_dataframe() method.
 }
 \examples{
 \donttest{
 # Create a connection object.
-connection = connect_mstr(base_url, username, password, project_name)
+connection = Connection$new(base_url, username, password, project_name)
 
 # Create a report object.
 my_report <- Report$new(connection, report_id)
@@ -54,6 +48,30 @@ my_report$dataframe
 \item{\code{connection}}{MicroStrategy connection object}
 
 \item{\code{report_id}}{Identifier of a report.}
+
+\item{\code{parallel}}{If TRUE, downloads report data asynchronously. FALSE by default.}
+
+\item{\code{name}}{Report name.}
+
+\item{\code{attributes}}{Report attributes.}
+
+\item{\code{metrics}}{Report metrics}
+
+\item{\code{attr_elements}}{Report attribute elements.}
+
+\item{\code{selected_attributes}}{Attributes selected for filtering.}
+
+\item{\code{selected_metrics}}{Metrics selected for filtering.}
+
+\item{\code{selected_attr_elements}}{Attribute elements selected for filtering.}
+
+\item{\code{dataframe}}{Dataframe containing data fetched from the Report.}
+
+\item{\code{cross_tab}}{boolean for filtering cross tabbed reports logic}
+
+\item{\code{cross_tab_filters}}{view filters for cross tab reports}
+
+\item{\code{instance_id}}{Identifier of an instance if report instance has been already initialized.}
 }
 \if{html}{\out{</div>}}
 }
@@ -70,32 +88,89 @@ my_report$dataframe
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize an instance of a report.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Report$new(connection, report_id, parallel = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Report$new(connection, report_id, instance_id = NULL, parallel = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{connection}}{MicroStrategy connection object. See Connection class.}
+
+\item{\code{report_id}}{Identifier of a pre-existing report containing the required data.}
+
+\item{\code{instance_id}}{Identifier of an instance if report instance has been already initialized, NULL by default.}
+
+\item{\code{parallel}}{(bool, optional):  If True, utilize optimal number of threads to increase the download
+speed. If False (default), this feature will be disabled.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-to_dataframe"></a>}}
+\if{latex}{\out{\hypertarget{method-to_dataframe}{}}}
 \subsection{Method \code{to_dataframe()}}{
+Extract contents of a Report into a R Data Frame.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Report$to_dataframe(limit = NULL, callback = function(x, y) {
 })}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{limit}}{(int, optional): Used to control data extraction behaviour on report with a large number of rows. By
+default the limit is calculated automatically. If TRUE, overrides automatic limit.}
+
+\item{\code{callback}}{used by the GUI to extract the progress information}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Dataframe with data fetched from the given Report.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-apply_filters"></a>}}
+\if{latex}{\out{\hypertarget{method-apply_filters}{}}}
 \subsection{Method \code{apply_filters()}}{
+Apply filters on the report data so only the chosen attributes, metrics, and attribute elements are
+retrieved from the Intelligence Server.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Report$apply_filters(attributes = NULL, metrics = NULL, attr_elements = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Report$apply_filters(
+  attributes = NULL,
+  metrics = NULL,
+  attr_elements = NULL,
+  operator = "In"
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{attributes}}{(list or None, optional): ID numbers of attributes to be included in the filter. If list is
+empty, no attributes will be selected and metric data will be aggregated.}
+
+\item{\code{metrics}}{(list or None, optional): ID numbers of metrics to be included in the filter. If list is empty,
+no metrics will be selected.}
+
+\item{\code{attr_elements}}{(list or None, optional): Attributes' elements to be included in the filter.}
+
+\item{\code{operator}}{(character, optional): Supported view filter operators are either "In" or "NotIn". This defines
+whether data will include ("In") or exclude ("NotIn") the supplied attr_elements values.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clear_filters"></a>}}
+\if{latex}{\out{\hypertarget{method-clear_filters}{}}}
 \subsection{Method \code{clear_filters()}}{
+Clear previously set filters, allowing all attributes, metrics, and attribute elements to be retrieved.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Report$clear_filters()}\if{html}{\out{</div>}}
 }
@@ -103,14 +178,25 @@ my_report$dataframe
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_attr_elements"></a>}}
+\if{latex}{\out{\hypertarget{method-get_attr_elements}{}}}
 \subsection{Method \code{get_attr_elements()}}{
+Load all attribute elements of the Report. Accessible via Report$attr_elements.
+Fetching attriubte elements will also allow for validating attriute elements by the filter object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Report$get_attr_elements(verbose = TRUE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{verbose}}{If TRUE, displays list of attribute elements.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

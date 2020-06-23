@@ -8,7 +8,7 @@ password <- "demopass"
 ## ------------------------------------------------------------------------
 library(mstrio)
 
-conn <- connect_mstr(base_url = 'https://demo.microstrategy.com/MicroStrategyLibrary/api', 
+conn <- Connection$new(base_url = 'https://demo.microstrategy.com/MicroStrategyLibrary/api', 
                      username = username, 
                      password = password, 
                      project_name = 'MobileDossier',

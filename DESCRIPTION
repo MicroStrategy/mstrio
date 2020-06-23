@@ -1,7 +1,7 @@
 Package: mstrio
 Type: Package
 Title: Interface for 'MicroStrategy' REST API
-Version: 11.2.1
+Version: 11.2.2
 Maintainer: Piotr Kowal <pkowal@microstrategy.com>
 Authors@R: c(
     person("Piotr", "Kowal", email = "pkowal@microstrategy.com", role = c("cre")),
@@ -29,7 +29,6 @@ Imports:
   methods,
   data.table,
   R6,
-  miniUI,
   rstudioapi,
   shinyjs,
   shiny
@@ -39,7 +38,7 @@ Suggests:
   rmarkdown,
   testthat
 VignetteBuilder: knitr
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Collate:
     'api-authentication.R'
     'api-cubes.R'
@@ -47,16 +46,15 @@ Collate:
     'api-projects.R'
     'api-reports.R'
     'api-misc.R'
+    'connection.R'
     'cube.R'
-    'datasets.R'
+    'dataset.R'
     'report.R'
-    'microstrategy.R'
     'utils-model.R'
     'utils-formjson.R'
     'utils-parser.R'
     'utils-encoder.R'
     'utils-filter.R'
-    'utils-composefilter.R'
     'utils-files.R'
     'utils-gui.R'
     'utils-import.R'

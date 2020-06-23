@@ -87,10 +87,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h2>Connecting to the REST API server</h2>
 <p>To create a connection to the MicroStrategy Intelligence Server, you’ll need to obtain the address of the REST API server, typically following this format: <code>https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api</code>.</p>
 <p>To validate that the REST API server is running, in your web browser, visit <code>https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs</code>.</p>
-<p>The <code>connect_mstr()</code> function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the <code>connect_mstr()</code> function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument <code>login_mode=16</code> to the <code>connect_mstr()</code> function. <code>connect_mstr()</code> returns a list of environment connection data which is in turn used in subsequent requests to the API server.</p>
+<p>The <code>Connection$new()</code> function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the <code>Connection$new()</code> function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument <code>login_mode=16</code> to the <code>Connection$new()</code> function. <code>Connection$new()</code> returns a list of environment connection data which is in turn used in subsequent requests to the API server.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(mstrio)
 
-conn &lt;-<span class="st"> </span><span class="kw">connect_mstr</span>(<span class="dt">base_url =</span> <span class="st">'https://demo.microstrategy.com/MicroStrategyLibrary/api'</span>, 
+conn &lt;-<span class="st"> </span><span class="kw">Connection$new</span>(<span class="dt">base_url =</span> <span class="st">'https://demo.microstrategy.com/MicroStrategyLibrary/api'</span>, 
                      <span class="dt">username =</span> username, 
                      <span class="dt">password =</span> password, 
                      <span class="dt">project_name =</span> <span class="st">'MobileDossier'</span>,

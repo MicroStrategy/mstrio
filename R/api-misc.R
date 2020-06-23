@@ -3,7 +3,7 @@
 
 # Get information about the version of iServer and web.
 server_status <- function(base_url, verbose = FALSE) {
-  response <- httr::GET(url = paste0(base_url, '/api/status'))
+  response <- httr::GET(url = paste0(base_url, "/api/status"))
 
   if (verbose) {
     print(response$url)

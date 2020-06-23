@@ -45,7 +45,7 @@ Model <- R6Class("Model",
     KEY_AS_ATTR = "to_attribute",
     KEY_AS_METR = "to_metric",
     KEY_UPDATE_POL = "update_policy",
-    INVALID_COL_CHARS = c('.'),  # check for invalid characters in column names
+    INVALID_CHARS = c('\\','"','[',']'),  # check for invalid characters in column names
     MAX_DESC_LEN = 250,  # max string length for dataset name and description
 
     # TODO: These should be private...
@@ -66,19 +66,21 @@ Model <- R6Class("Model",
       private$check_param_str(self$name,
                               msg="Dataset name should be a string.")
       private$check_param_len(self$name,
-                              length=self$MAX_DESC_LEN,
+                              max_length=self$MAX_DESC_LEN,
                               msg=paste("Dataset name should be <=", self$MAX_DESC_LEN, "characters."))
-
+      private$check_param_inv_chars(self$name,
+                                    msg=paste("Dataset name cannot contain", 
+                                              paste0("'",self$INVALID_CHARS,"'" , collapse=", ")))
       # check dataset description params
       if(is.null(description)) {
         self$description <- ""
       } else {
         self$description <- description
         private$check_param_str(self$description,
-                                msg="Dataset name should be a string.")
+                                msg="Dataset description should be a string.")
         private$check_param_len(self$description,
-                                length=self$MAX_DESC_LEN,
-                                msg=paste("Dataset name should be <=", self$MAX_DESC_LEN, "characters."))
+                                max_length=self$MAX_DESC_LEN,
+                                msg=paste("Dataset description should be <=", self$MAX_DESC_LEN, "characters."))
       }
 
       # check folder_id param
@@ -261,13 +263,14 @@ Model <- R6Class("Model",
       }
 
       # check for presence of invalid characters in data frame column names
-      if(any(names(table[[self$KEY_DATA_FRAME]]) %in% self$INVALID_COL_CHARS)) {
-        stop(paste("Column names cannot contain any dots"))
+      if(any(self$INVALID_CHARS %in% unlist(strsplit(names(table[[self$KEY_DATA_FRAME]]),"")))) {
+        stop(msg=paste("Column names cannot contain", 
+                       paste0("'",self$INVALID_CHARS,"'" , collapse=", ")))
       }
 
     },
-    check_param_len = function(param, msg, length) {
-      if(nchar(param) >= length) {
+    check_param_len = function(param, msg, max_length) {
+      if(nchar(param) > max_length) {
         stop(msg)
       } else {
         return(TRUE)
@@ -276,6 +279,13 @@ Model <- R6Class("Model",
     },
     check_param_str = function(param, msg) {
       if(class(param) != "character") {
+        stop(msg)
+      } else {
+        return(TRUE)
+      }
+    },
+    check_param_inv_chars = function(param, msg) {
+      if(any(self$INVALID_CHARS %in% unlist(strsplit(param, "")))) {
         stop(msg)
       } else {
         return(TRUE)

@@ -9,10 +9,10 @@
 #' \donttest{
 #' # Create a parser object
 #' p <- Parser$new(response)
-#' 
+#'
 #' # Parse the first request
 #' p$parse(response)
-#' 
+#'
 #' # Return the data frame
 #' p$to_dataframe()
 #' }
@@ -48,7 +48,7 @@ Parser <- R6Class("Parser",
       # extract column headers and names if not already done
       self$metric_columns <- private$extract_metric_col_names(response)
       self$metric_count <- length(self$metric_columns)
-      self$metric_values <- data.frame()
+      self$metric_values <- data.frame(matrix(nrow = 0, ncol = self$metric_count))
       private$extract_paging_info(response)
 
     # extract attribute forms and column labels
@@ -62,11 +62,13 @@ Parser <- R6Class("Parser",
     parse = function(response) {
       # with each chunk, extract information from the rows
       # extract attribute values into 2d matrix if attributes exist in the response
-      if (length(self$attribute_names))
-        self$mapped_attributes <- rbind(self$mapped_attributes, private$map_attributes(response))
-      # extract metric values if metrics exist in the response
-      if (self$metric_count)
-        self$metric_values <- rbind(self$metric_values, private$extract_metric_values(response))
+      if (self$total_rows > 0) {
+        if (length(self$attribute_names))
+          self$mapped_attributes <- rbind(self$mapped_attributes, private$map_attributes(response))
+        # extract metric values if metrics exist in the response
+        if (self$metric_count)
+          self$metric_values <- rbind(self$metric_values, private$extract_metric_values(response))
+      }
     },
 
     to_dataframe = function() {
@@ -159,7 +161,16 @@ Parser <- R6Class("Parser",
     },
 
     extract_metric_values = function(response) {
-      # rbindlist will bind the metric rows to a data.table without coercing the data into one data type it will throw # a warning when NULL values will be found (hence suppressWarnings) and change them to NA, which is desired
+      # rbindlist will bind the metric rows to a data.table without coercing the data into one data type it will throw
+      # a warning when NULL values will be found (hence suppressWarnings) and change them to NA, which is desired
+      # Above statement is actually not true, implemented for loop to replace NULLs, but a better solution would be
+      # appreciated.
+
+      for (x in seq(response$data$metricValues$raw)) {
+        if (is.null(response$data$metricValues$raw[[x]][[1]])) {
+          response$data$metricValues$raw[[x]][[1]] <- NA
+        }
+      }
       return(as.data.frame(suppressWarnings(rbindlist(response$data$metricValues$raw)), stringsAsFactors=FALSE))
     },
 

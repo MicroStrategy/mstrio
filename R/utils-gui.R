@@ -16,8 +16,8 @@ displayFetchStartMessage <- function(name, type) {
   shinyjs::runjs(msg);
 }
 
-displayFetchSuccessMessage <- function(datasetType, datasetName, time) {
-  msg = paste0("backendManager.displayFetchSuccessMessage('",datasetType,"','",datasetName,"',",time,");")
+displayFetchSuccessMessage <- function(datasetType, datasetName) {
+  msg = paste0("backendManager.displayFetchSuccessMessage('",datasetType,"','",datasetName,"');");
   shinyjs::runjs(msg);
 }
 
@@ -26,8 +26,8 @@ displayExportStartMessage <- function(datasetName) {
   shinyjs::runjs(msg);
 }
 
-displayExportSuccessMessage <- function(datasetName, time) {
-  msg = paste0("backendManager.displayExportSuccessMessage('",datasetName,"',",time,");")
+displayExportSuccessMessage <- function(datasetName) {
+  msg = paste0("backendManager.displayExportSuccessMessage('",datasetName,"');")
   shinyjs::runjs(msg);
 }
 
@@ -59,7 +59,9 @@ sendEnvInfosToGui <- function() {
 }
 
 sendRecentProjectsToGui <- function() {
-  lines <- loadLinesFromFile('recentProjects.txt')
+  linesFromNewFile <- loadLinesFromFile('recentProjects')
+  linesFromOldFile <- loadLinesFromFile('recentProjects.txt')
+  lines <- if(length(linesFromNewFile) > 0) linesFromNewFile else linesFromOldFile
   if(length(lines)>0) {
     for(i in 1:length(lines)){
       cmd <- paste0("backendManager.addRecentProjects('",lines[i],"');")

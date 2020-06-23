@@ -1,67 +1,50 @@
 #' @importFrom utils head type.convert
 
-downloadDataset <- function(input) {
-  displayFetchStartMessage(input$datasetName, input$datasetType);
-    tryCatch({
-      con <- mstrio::connect_mstr(base_url = input$envUrl , username = input$username, password = input$password, project_id=input$projectId, login_mode = as.numeric(input$loginMode))
-      fetchDataset(con, input$datasetType, input$datasetId, input$datasetName, body=input$datasetBody)
-      mstrio::close(con)
-    }, error = function(e) {
-      displayErrorMessage('RfetchError', e$message)
-      print(e$message)
-    });
-}
-
-fetchDataset <- function(conn, datasetType, datasetId, datasetName, body) {
-  t1 <- unclass(Sys.time())
-
-  body <- jsonlite::fromJSON(body)
-
-  if (length(body$attributes) + length(body$metrics) + length(body$filters) == 0) {
-    attr <- NULL
-    metr <- NULL
-    filtr <- NULL
-  } else {
-    attr <- body$attributes
-    metr <- body$metrics
-    if (length(body$filters) == 0) {
-      filtr <- NULL
-    } else {
-      filtr <- body$filters
-    }
-  }
-
+importDataset <- function (base_url, project_id, identity_token, dataset_id, original_name, save_as_name, dataset_type, raw_body, instance_id) {
+  displayFetchStartMessage(original_name, dataset_type);
   tryCatch({
-    if(datasetType=='dataset') {
-      instance <- mstrio::Cube$new(conn,datasetId)
+    connection <- mstrio::Connection$new(base_url = base_url, identity_token = identity_token, project_id = project_id, verbose=FALSE)
+
+    body <- jsonlite::fromJSON(raw_body)
+    if (length(body$attributes) + length(body$metrics) + length(body$filters) == 0) {
+      attributes <- NULL
+      metrics <- NULL
+      filters <- NULL
+    } else {
+      attributes <- body$attributes
+      metrics <- body$metrics
+      if (length(body$filters) == 0) {
+        filters <- NULL
+      } else {
+        filters <- body$filters
+      }
+    }
+
+    if(dataset_type=='dataset') {
+      instance <- mstrio::Cube$new(connection, dataset_id, instance_id)
     }
     else {
-      instance <- mstrio::Report$new(conn, datasetId)
+      instance <- mstrio::Report$new(connection, dataset_id, instance_id)
     }
-    instance$apply_filters(
-      attributes=attr,
-      metrics=metr,
-      attr_elements=filtr
-    )
+
+    instance$apply_filters(attributes, metrics, filters)
     dataset <- instance$to_dataframe(callback=displayFetchLoadingMessage)
-    t2 <- unclass(Sys.time())
-    time <- round(t2-t1,2)
-    saveDatasetToEnv(dataset,datasetName)
-    type <- firstUp(datasetType)
-    displayFetchSuccessMessage(type, datasetName, time)
+    saveDatasetToEnv(dataset, save_as_name)
+    type <- firstUp(dataset_type)
+    displayFetchSuccessMessage(type, original_name)
   },
-  error = function(e) {
-    print(e$message)
-    if(stringIntersects('is not published',e$message)){
+  error = function(error) {
+    print(error$message)
+    if(stringIntersects('is not published', error$message)){
       displayErrorMessage('RcubeNotPublishedError')
     }
-    else if(stringIntersects("'data' must be of a vector type, was 'NULL'",e$message)){
+    else if(stringIntersects("'data' must be of a vector type, was 'NULL'", error$message)){
       displayErrorMessage('RemptyDatasetError')
     }
     else {
-      displayErrorMessage('RfetchError')
+      displayErrorMessage('RfetchError', error$message)
     }
-  })
+  });
 }
 
 saveDatasetToEnv <- function(dataset, datasetName, applyBestGuess=FALSE){
@@ -83,7 +66,7 @@ saveDatasetToEnv <- function(dataset, datasetName, applyBestGuess=FALSE){
   shinyjs::runjs(cmd)
   tryCatch({
     myView(x=dataset,title=datasetName)
-  }, error = function(err) {
-
+  }, error = function(error) {
+    print(error$message)
   })
 }

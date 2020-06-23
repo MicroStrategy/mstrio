@@ -60,6 +60,7 @@ model_info <- model$get_model()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Model$new(tables, name, description = NULL, folder_id = NULL)}\if{html}{\out{</div>}}
@@ -68,6 +69,7 @@ model_info <- model$get_model()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_model"></a>}}
+\if{latex}{\out{\hypertarget{method-get_model}{}}}
 \subsection{Method \code{get_model()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Model$get_model()}\if{html}{\out{</div>}}
@@ -76,6 +78,7 @@ model_info <- model$get_model()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_name"></a>}}
+\if{latex}{\out{\hypertarget{method-get_name}{}}}
 \subsection{Method \code{get_name()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Model$get_name()}\if{html}{\out{</div>}}
@@ -84,6 +87,7 @@ model_info <- model$get_model()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_description"></a>}}
+\if{latex}{\out{\hypertarget{method-get_description}{}}}
 \subsection{Method \code{get_description()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Model$get_description()}\if{html}{\out{</div>}}
@@ -92,6 +96,7 @@ model_info <- model$get_model()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_folder_id"></a>}}
+\if{latex}{\out{\hypertarget{method-get_folder_id}{}}}
 \subsection{Method \code{get_folder_id()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Model$get_folder_id()}\if{html}{\out{</div>}}
@@ -100,6 +105,7 @@ model_info <- model$get_model()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_tables"></a>}}
+\if{latex}{\out{\hypertarget{method-get_tables}{}}}
 \subsection{Method \code{get_tables()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Model$get_tables()}\if{html}{\out{</div>}}
@@ -108,6 +114,7 @@ model_info <- model$get_model()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_attributes"></a>}}
+\if{latex}{\out{\hypertarget{method-get_attributes}{}}}
 \subsection{Method \code{get_attributes()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Model$get_attributes()}\if{html}{\out{</div>}}
@@ -116,6 +123,7 @@ model_info <- model$get_model()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_metrics"></a>}}
+\if{latex}{\out{\hypertarget{method-get_metrics}{}}}
 \subsection{Method \code{get_metrics()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Model$get_metrics()}\if{html}{\out{</div>}}
@@ -124,6 +132,7 @@ model_info <- model$get_model()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
