@@ -38,7 +38,6 @@ applyDataModeling <- function(steps, selected_objects) {
     });
 }
 
-
 renameDataframe <- function(oldName, newName) {
     oldDf <- getDfFromTempEnv(oldName)
     assign(
@@ -93,73 +92,63 @@ getDfFromTempEnv <- function(dfName) {
     df
 }
 
-updateCube <- function(input) {
+updateCube <- function(base_url, project_id, identity_token, cube_id, cube_name, update_policies) {
   tryCatch({
-    displayUpdateLoadingMessage(input$datasetName)
-    con <- mstrio::connect_mstr(base_url = input$envUrl , username = input$username, password = input$password, project_id=input$projectId, login_mode = as.numeric(input$loginMode))
-    dataset <- Dataset$new(con, dataset_id=input$cubeId)
-    parsed_update_policies <- jsonlite::fromJSON(input$updatePolicies)
+    displayUpdateLoadingMessage(cube_name)
+    connection <- mstrio::Connection$new(base_url, project_id=project_id, identity_token=identity_token, verbose=FALSE)
+    dataset <- Dataset$new(connection, dataset_id=cube_id)
+    parsed_update_policies <- jsonlite::fromJSON(update_policies)
     for(i in 1:nrow(parsed_update_policies)) {
-        tableName = parsed_update_policies[i,]$tableName
-        updatePolicy = parsed_update_policies[i,]$updatePolicy
-        df <- getDfFromTempEnv(tableName)
-        dataset$add_table(tableName, df, updatePolicy)
+        table_name = parsed_update_policies[i,]$tableName
+        update_policy = parsed_update_policies[i,]$updatePolicy
+        df <- getDfFromTempEnv(table_name)
+        dataset$add_table(table_name, df, update_policy)
     }
-    dataset$update()
-    displayPublishLoadingMessage(input$datasetName)
+    dataset$update(auto_publish=FALSE)
+    displayPublishLoadingMessage(cube_name)
     dataset$publish()
     clearTemporaryEnv()
-    finishCubeUpdate(1, input$datasetName)
+    finishCubeUpdate(1, cube_name)
   },
-  error = function(e){
-    print(e$message)
-    finishCubeUpdate(0, input$datasetName)
+  error = function(error){
+    print(error$message)
+    finishCubeUpdate(0, cube_name)
   });
 }
 
-exportDataset <- function(input) {
-    displayExportStartMessage(input$saveAsName);
-    tryCatch({
-      con <- mstrio::connect_mstr(input$envUrl , input$username, input$password, project_id=input$projectId, login_mode = as.numeric(input$loginMode))
-      exportDataframes(con=con, input$selectedDataframes, input$folderId, input$saveAsName, input$certify, input$description)
-      mstrio::close(con)
-    }, error = function(e) {
-      displayErrorMessage('RexportError', e$message)
-      print(e$message)
-    });
-}
-
-exportDataframes <- function(con, selectedDataframesJSON, folderId, saveAsName, certify, description) {
+exportDataframes <- function (base_url, project_id, identity_token, save_as_name, description, selected_dataframes_json, folder_id, certify) {
+  displayExportStartMessage(save_as_name);
   tryCatch({
-    t1 <- unclass(Sys.time())
-    newDs <- mstrio::Dataset$new(connection=con, name=saveAsName, description=description);
-    selectedDataframes<- jsonlite::fromJSON(selectedDataframesJSON)
-    for(i in 1:nrow(selectedDataframes)) {
-      df_name = selectedDataframes[i, 'name']
+    connection <- mstrio::Connection$new(base_url, project_id=project_id, identity_token=identity_token, verbose=FALSE)
+
+    new_dataset <- mstrio::Dataset$new(connection, save_as_name, description);
+
+    selected_dataframes <- jsonlite::fromJSON(selected_dataframes_json)
+    for(i in 1:nrow(selected_dataframes)) {
+    df_name = selected_dataframes[i, 'name']
       df <- getDfFromTempEnv(df_name)
-      metrics = unlist(selectedDataframes[i, 'metrics'])
-      attributes = unlist(selectedDataframes[i, 'attributes'])
-      newDs$add_table(df_name, df, "add", metrics, attributes)
+      metrics = unlist(selected_dataframes[i, 'metrics'])
+      attributes = unlist(selected_dataframes[i, 'attributes'])
+      new_dataset$add_table(df_name, df, "add", metrics, attributes)
     }
-    newDs$create(folderId)
+
+    new_dataset$create(folder_id)
+
     if(certify) {
-      newDs$certify();
+      new_dataset$certify();
     }
-    t2 <- unclass(Sys.time())
-    time <- round(t2-t1,2)
-    displayExportSuccessMessage(saveAsName, time)
     reloadCurrentFolder();
-  },
-  error = function(e) {
-    print(e$message)
-    if(stringIntersects('Cannot overwrite a non-cube report with a cube report', e$message)){
-      displayErrorMessage('RreportOverwriteError', e$message)
+    displayExportSuccessMessage(save_as_name)
+  }, error = function(error){
+    print(error$message)
+    if(stringIntersects('Cannot overwrite a non-cube report with a cube report', error$message)){
+      displayErrorMessage('RreportOverwriteError', error$message)
     }
-    else if(stringIntersects('The object with the given identifier is not an object of the expected type', e$message)){
-      displayErrorMessage('RexportUnexpectedObjectTypeError', e$message)
+    else if(stringIntersects('The object with the given identifier is not an object of the expected type', error$message)){
+      displayErrorMessage('RexportUnexpectedObjectTypeError', error$message)
     }
     else {
-      displayErrorMessage('RexportError', e$message)
+      displayErrorMessage('RexportError', error$message)
     }
-  })
+  });
 }

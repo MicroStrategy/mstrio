@@ -44,7 +44,7 @@ detectOS <- function() {
 loadLinesFromFile <- function(fileName) {
   createMstrconnectorDirectory()
   path <- file.path(baseFolderPath(),fileName)
-  
+
   if(file.exists(path)) {
     con = file(path,open="r")
     lines <- readLines(con)
@@ -64,7 +64,7 @@ updateEnvSuggestions <- function(newSuggestions) {
 }
 
 updateRecentProjects <- function(recentProjects) {
-  fileName = 'recentProjects.txt'
+  fileName = 'recentProjects'
   path <- file.path(baseFolderPath(),fileName)
   unlink(path)
   saveStringToFile(path,recentProjects)

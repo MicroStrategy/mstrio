@@ -31,7 +31,7 @@ server, typically following this format: `https://yourMicroStrategyEnvironment.c
 
 To validate that the REST API server is running, in your web browser, visit `https://yourMicroStrategyEnvironment.com/MicroStrategyLibrary/api-docs`. 
 
-The `connect_mstr()` function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the `connect_mstr()` function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument `login_mode=16` to the `connect_mstr()` function. `connect_mstr()` returns a list of environment connection data which is in turn used in subsequent requests to the API server.
+The `Connection$new()` function requires the URL to the REST API server, your username and password, and the name of the project which contains the data you are looking for. By default, the `Connection$new()` function expects your MicroStrategy username and password. If you use LDAP to access MicroStrategy, provide the optional argument `login_mode=16` to the `Connection$new()` function. `Connection$new()` returns a list of environment connection data which is in turn used in subsequent requests to the API server.
 
 ```{r, include=FALSE}
 username <- "demouser"
@@ -42,7 +42,7 @@ password <- "demopass"
 ```{r, eval=FALSE}
 library(mstrio)
 
-conn <- connect_mstr(base_url = 'https://demo.microstrategy.com/MicroStrategyLibrary/api', 
+conn <- Connection$new(base_url = 'https://demo.microstrategy.com/MicroStrategyLibrary/api', 
                      username = username, 
                      password = password, 
                      project_name = 'MobileDossier',

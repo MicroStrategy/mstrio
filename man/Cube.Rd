@@ -7,16 +7,13 @@
 \description{
 Access, filter, publish, and extract data from MicroStrategy in-memory cubes
 
-     Attributes:
-       connection: MicroStrategy connection object returned by `microstrategy.Connection()`.
-       cube_id: Identifier of a pre-existing cube containing the required data.
-       parallel (bool, optional): If True, use asynchronous requests to download data. If False (default), this
-         feature will be disabled.
+Create a Cube object to load basic information on a cube dataset. Specify subset of cube to
+be fetched through apply_filters() and clear_filters(). Fetch dataset through to_dataframe() method.
 }
 \examples{
 \donttest{
 # Create a connection object.
-connection = connect_mstr(base_url, username, password, project_name)
+connection = Connection$new(base_url, username, password, project_name)
 
 # Create a cube object.
 my_cube <- Cube$new(connection=conn, cube_id="...")
@@ -50,7 +47,39 @@ my_cube$dataframe
 \describe{
 \item{\code{connection}}{MicroStrategy connection object}
 
-\item{\code{cube_id}}{Identifier of a cube.}
+\item{\code{cube_id}}{Identifier of a report.}
+
+\item{\code{parallel}}{If TRUE, downloads cube data asynchronously. FALSE by default.}
+
+\item{\code{name}}{Cube name.}
+
+\item{\code{owner_id}}{ID of Cube owner.}
+
+\item{\code{path}}{Exact path of the cube location.}
+
+\item{\code{last_modified}}{Date of latest Cube modification.}
+
+\item{\code{size}}{Cube size.}
+
+\item{\code{status}}{Cube status.}
+
+\item{\code{attributes}}{Cube attributes.}
+
+\item{\code{metrics}}{Cube metrics}
+
+\item{\code{attr_elements}}{Cube attribute elements.}
+
+\item{\code{selected_attributes}}{Attributes selected for filtering.}
+
+\item{\code{selected_metrics}}{Metrics selected for filtering.}
+
+\item{\code{selected_attr_elements}}{Attribute elements selected for filtering.}
+
+\item{\code{dataframe}}{Dataframe containing data fetched from the Cube.}
+
+\item{\code{dataframe_list}}{List of dataframes split to match tables in Cube.}
+
+\item{\code{instance_id}}{Identifier of an instance if cube instance has been already initialized.}
 }
 \if{html}{\out{</div>}}
 }
@@ -62,20 +91,40 @@ my_cube$dataframe
 \item \href{#method-apply_filters}{\code{Cube$apply_filters()}}
 \item \href{#method-clear_filters}{\code{Cube$clear_filters()}}
 \item \href{#method-get_attr_elements}{\code{Cube$get_attr_elements()}}
+\item \href{#method-update}{\code{Cube$update()}}
+\item \href{#method-save_as}{\code{Cube$save_as()}}
 \item \href{#method-clone}{\code{Cube$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize an instance of a cube.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cube$new(connection, cube_id, parallel = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Cube$new(connection, cube_id, instance_id = NULL, parallel = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{connection}}{MicroStrategy connection object. See Connection class.}
+
+\item{\code{cube_id}}{Identifier of a pre-existing cube containing the required data.}
+
+\item{\code{instance_id}}{Identifier of an instance if cube instance has been already initialized, NULL by default.}
+
+\item{\code{parallel}}{(bool, optional):  If True, utilize optimal number of threads to increase the download
+speed. If False (default), this feature will be disabled.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-to_dataframe"></a>}}
+\if{latex}{\out{\hypertarget{method-to_dataframe}{}}}
 \subsection{Method \code{to_dataframe()}}{
+Extract contents of a cube into a R Data Frame.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Cube$to_dataframe(
   limit = NULL,
@@ -84,18 +133,60 @@ my_cube$dataframe
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{limit}}{(int, optional): Used to control data extraction behaviour on cubes with a large number of rows. By
+default the limit is calculated automatically. If TRUE, overrides automatic limit.}
+
+\item{\code{multi_df}}{If True (default), returns a list of dataframes resembling the table structure of the cube. If
+FALSE, returns one dataframe.}
+
+\item{\code{callback}}{used by the GUI to extract the progress information.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Dataframe with data fetched from the given Cube.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-apply_filters"></a>}}
+\if{latex}{\out{\hypertarget{method-apply_filters}{}}}
 \subsection{Method \code{apply_filters()}}{
+Apply filters on the cube data so only the chosen attributes, metrics, and attribute elements are
+retrieved from the Intelligence Server.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cube$apply_filters(attributes = NULL, metrics = NULL, attr_elements = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Cube$apply_filters(
+  attributes = NULL,
+  metrics = NULL,
+  attr_elements = NULL,
+  operator = "In"
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{attributes}}{(list or None, optional): ID numbers of attributes to be included in the filter. If list is
+empty, no attributes will be selected and metric data will be aggregated.}
+
+\item{\code{metrics}}{(list or None, optional): ID numbers of metrics to be included in the filter. If list is empty,
+no metrics will be selected.}
+
+\item{\code{attr_elements}}{(list or None, optional): Attributes' elements to be included in the filter.}
+
+\item{\code{operator}}{(character, optional): Supported view filter operators are either "In" or "NotIn". This defines
+whether data will include ("In") or exclude ("NotIn") the supplied attr_elements values.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clear_filters"></a>}}
+\if{latex}{\out{\hypertarget{method-clear_filters}{}}}
 \subsection{Method \code{clear_filters()}}{
+Clear previously set filters, allowing all attributes, metrics, and attribute elements to be retrieved.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Cube$clear_filters()}\if{html}{\out{</div>}}
 }
@@ -103,14 +194,71 @@ my_cube$dataframe
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_attr_elements"></a>}}
+\if{latex}{\out{\hypertarget{method-get_attr_elements}{}}}
 \subsection{Method \code{get_attr_elements()}}{
+Load all attribute elements of the Cube. Accessible via Cube$attr_elements
+Fetching attriubte elements will also allow for validating attriute elements by the filter object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Cube$get_attr_elements(verbose = TRUE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{verbose}}{If TRUE, displays list of attribute elements.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-update"></a>}}
+\if{latex}{\out{\hypertarget{method-update}{}}}
+\subsection{Method \code{update()}}{
+Update single-table cube easily with the data frame stored in the Cube instance (cube$dataframe).
+Before the update, make sure that the data frame has been modified.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Cube$update(update_policy = "update")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{update_policy}}{(character) Update operation to perform. One of 'add' (inserts new, unique rows), 'update'
+(updates data in existing rows and columns), 'upsert' (updates existing data and inserts new rows), or 'replace'
+(replaces the existing data with new data).}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-save_as"></a>}}
+\if{latex}{\out{\hypertarget{method-save_as}{}}}
+\subsection{Method \code{save_as()}}{
+Creates a new single-table cube with the data frame stored in the Cube instance (cube$dataframe).
+Before the update, make sure that the data exists.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Cube$save_as(name, description = NULL, folder_id = NULL, table_name = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{(character): Name of the dataset. Must be less than or equal to 250 characters.}
+
+\item{\code{description}}{(character, optional): Description of the dataset. Must be less than or equal to 250 characters.}
+
+\item{\code{folder_id}}{ID of the shared folder that the dataset should be created within. If `None`,
+defaults to the user's My Reports folder.}
+
+\item{\code{table_name}}{(character, optional) Name of the table. If NULL, the first table name of the original cube will
+be used.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
