@@ -1,7 +1,7 @@
 Package: mstrio
 Type: Package
 Title: Interface for 'MicroStrategy' REST API
-Version: 11.2.2
+Version: 11.2.2.1
 Maintainer: Piotr Kowal <pkowal@microstrategy.com>
 Authors@R: c(
     person("Piotr", "Kowal", email = "pkowal@microstrategy.com", role = c("cre")),
