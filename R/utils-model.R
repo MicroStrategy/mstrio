@@ -9,7 +9,7 @@
 #' @field description Description of the data set. Must be less than or equal to 250 characters
 #' @field folder_id ID of the shared folder that the dataset should be created within. If NULL, defaults to the user's My Reports folder
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Create data frames
 #' df1 <- data.frame("id" = c(1, 2, 3, 4, 5),
 #'                   "first_name" = c("Jason", "Molly", "Tina", "Jake", "Amy"),
@@ -69,7 +69,7 @@ Model <- R6Class("Model",
                               max_length=self$MAX_DESC_LEN,
                               msg=paste("Dataset name should be <=", self$MAX_DESC_LEN, "characters."))
       private$check_param_inv_chars(self$name,
-                                    msg=paste("Dataset name cannot contain", 
+                                    msg=paste("Dataset name cannot contain",
                                               paste0("'",self$INVALID_CHARS,"'" , collapse=", ")))
       # check dataset description params
       if(is.null(description)) {
@@ -264,7 +264,7 @@ Model <- R6Class("Model",
 
       # check for presence of invalid characters in data frame column names
       if(any(self$INVALID_CHARS %in% unlist(strsplit(names(table[[self$KEY_DATA_FRAME]]),"")))) {
-        stop(msg=paste("Column names cannot contain", 
+        stop(msg=paste("Column names cannot contain",
                        paste0("'",self$INVALID_CHARS,"'" , collapse=", ")))
       }
 

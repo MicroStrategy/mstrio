@@ -18,7 +18,7 @@
 #' @field cube_state Cube status,for example, 0=unpublished, 1=publishing, 64=ready
 #' @field verbose If True (default), displays additional messages.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Create data frames
 #' df1 <- data.frame("id" = c(1, 2, 3, 4, 5),
 #'                   "first_name" = c("Jason", "Molly", "Tina", "Jake", "Amy"),
@@ -55,7 +55,7 @@
 #' # By default Dataset$update() will upload the data to the Intelligence Server and publish the
 #'  dataset.
 #' # If you just want to update the dataset but not publish the row-level data, use
-#' Dataset$create(auto_publish=FALSE)
+#' Dataset$update(auto_publish=FALSE)
 #'
 #' # By default, the raw data is transmitted to the server in increments of 100,000 rows. On very
 #' # large datasets (>1 GB), it is beneficial to increase the number of rows transmitted to the
@@ -74,7 +74,7 @@ Dataset <- R6Class("Dataset",
 
   public = list(
 
-  # instance variables
+# instance variables
     connection = NULL,
     name = NULL,
     description = NULL,
@@ -100,23 +100,23 @@ Dataset <- R6Class("Dataset",
 #' dataset.
 #' @param verbose Setting to control the amount of feedback from the I-Server.
 #' @return A new `Datasets` object
-    initialize = function(connection, name=NULL, description=NULL, dataset_id=NULL, verbose=TRUE) {
+    initialize = function(connection, name = NULL, description = NULL, dataset_id = NULL, verbose = TRUE) {
 
       self$connection <- connection
       self$dataset_id <- dataset_id
       self$verbose <- verbose
 
       if (!is.null(name)) {
-        private$check_param_str(name, msg="Dataset name should be a string.")
-        private$check_param_len(name, msg="Dataset name should be <= 250 characters.",
-                                max_length=private$max_desc_len)
+        private$check_param_str(name, msg = "Dataset name should be a string.")
+        private$check_param_len(name, msg = "Dataset name should be <= 250 characters.",
+                                max_length = private$max_desc_len)
       }
       self$name <- name
 
       if (!is.null(description)) {
-        private$check_param_str(description, msg="Dataset description should be a string.")
-        private$check_param_len(description, msg ="Dataset description should be <= 250 characters.",
-                                max_length=private$max_desc_len)
+        private$check_param_str(description, msg = "Dataset description should be a string.")
+        private$check_param_len(description, msg = "Dataset description should be <= 250 characters.",
+                                max_length = private$max_desc_len)
       }
       self$description <- description
 
@@ -140,7 +140,7 @@ Dataset <- R6Class("Dataset",
 #' a character vector in `to_metric` parameter.
 #' @param  to_attribute (optional, vector): Logical opposite of `to_metric`. Helpful for formatting an
 #' integer-based row identifier as a primary key in the dataset.
-    add_table = function(name, data_frame, update_policy, to_metric=NULL, to_attribute=NULL) {
+    add_table = function(name, data_frame, update_policy, to_metric = NULL, to_attribute = NULL) {
 
       if (class(data_frame) != "data.frame") {
         stop("data_frame must be a valid R data.frame.")
@@ -148,6 +148,14 @@ Dataset <- R6Class("Dataset",
 
       if (!update_policy %in% private$valid_policy) {
         stop("Invalid update policy. Only 'add', 'update', 'replace', and 'upsert' are supported.")
+      }
+
+      # info <- check_version(self$connection$base_url, )
+      ver <- utils::compareVersion(self$connection$iserver_version, "11.2.0300")
+      new_policy <- ver >= 0
+
+      if (is.null(self$dataset_id) && update_policy != 'replace' && new_policy) {
+        stop("Update policy has to be 'replace' if a dataset is created or overwritten.")
       }
 
       table <- list("table_name" = name,
@@ -188,173 +196,173 @@ Dataset <- R6Class("Dataset",
 #' definition. If False, simply creates the dataset but does not publish it. To publish the dataset, data has to be
 #' uploaded first.
 #' @param chunksize (int, optional) Number of rows to transmit to the I-Server with each request when uploading.
-    create = function(folder_id=NULL, auto_upload=TRUE, auto_publish=TRUE, chunksize=100000) {
+      create = function(folder_id = NULL, auto_upload = TRUE, auto_publish = TRUE, chunksize = 100000) {
 
-      if (auto_publish && !auto_upload) {
-        stop("Data needs to be uploaded to the I-Server before the dataset can be published.")
-      }
-      # Check that tables object contains data
-      private$check_tables(private$tables)
+        if (auto_publish && !auto_upload) {
+          stop("Data needs to be uploaded to the I-Server before the dataset can be published.")
+        }
+        # Check that tables object contains data
+        private$check_tables(private$tables)
 
-      if (!is.null(folder_id)) {
-        self$folder_id <- folder_id
-      } else {
-        self$folder_id <- ""
-      }
+        if (!is.null(folder_id)) {
+          self$folder_id <- folder_id
+        } else {
+          self$folder_id <- ""
+        }
 
-      # generate model of the dataset
-      private$build_model()
+        # generate model of the dataset
+        private$build_model()
 
-      # makes request to create the dataset definition on the server
-      response <- create_multitable_dataset(self$connection,
+        # makes request to create the dataset definition on the server
+        response <- create_multitable_dataset(self$connection,
                                             body = private$model_list$json,
                                             verbose = private$debug)
 
-      response <- content(response, as="parsed", type="application/json")
-      self$dataset_id <- response$id
+        response <- content(response, as = "parsed", type = "application/json")
+        self$dataset_id <- response$id
 
-      if (self$verbose) {
-        print(sprintf("Created dataset %s with ID: %s", self$name, self$dataset_id))
-      }
+        if (self$verbose) {
+          print(sprintf("Created dataset %s with ID: %s", self$name, self$dataset_id))
+        }
 
-      # if desired, automatically upload and publish the data to the new dataset
-      if (auto_upload) {
-        self$update(chunksize=chunksize, auto_publish=auto_publish)
-      }
-    },
+        # if desired, automatically upload and publish the data to the new dataset
+        if (auto_upload) {
+          self$update(chunksize = chunksize, auto_publish = auto_publish)
+        }
+      },
 
 #' @description Updates an existing dataset with new data.
 #' @param chunksize (int, optional): Number of rows to transmit to the I-Server with each request when uploading.
 #' @param auto_publish (default TRUE) If True, automatically publishes the data. If False, data will be uploaded but
 #' the cube will not be published
-    update = function(chunksize=100000, auto_publish=TRUE) {
-      # Check that tables object contains data
-      private$check_tables(private$tables)
+      update = function(chunksize = 100000, auto_publish = TRUE) {
+        # Check that tables object contains data
+        private$check_tables(private$tables)
 
-      # form request body and create a session for data uploads
-      private$form_upload_body()
-      response <- upload_session(connection=self$connection, dataset_id=self$dataset_id,
-                                 body=private$upload_body$json, verbose=private$debug)
+        # form request body and create a session for data uploads
+        private$form_upload_body()
+        response <- upload_session(connection = self$connection, dataset_id = self$dataset_id,
+                                 body = private$upload_body$json, verbose = private$debug)
 
-      response <- content(response, as="parsed", type="application/json")
-      private$session_id <- response$uploadSessionId
+        response <- content(response, as = "parsed", type = "application/json")
+        private$session_id <- response$uploadSessionId
 
-      # upload each table
-      for (table in private$tables) {
+        # upload each table
+        for (table in private$tables) {
 
-        # break the data up into chunks
-        rows <- 0
-        total <- nrow(table$data_frame)
+          # break the data up into chunks
+          rows <- 0
+          total <- nrow(table$data_frame)
 
-        chunks <- split(table$data_frame, rep(1:ceiling(nrow(table$data_frame) / chunksize),
-                                              each=chunksize,
+          chunks <- split(table$data_frame, rep(1:ceiling(nrow(table$data_frame) / chunksize),
+                                              each = chunksize,
                                               length.out = nrow(table$data_frame)))
-        for (i in seq_along(chunks)) {
+          for (i in seq_along(chunks)) {
 
-          # base64 encode the data
-          enc <- Encoder$new(chunks[[i]], "multi")
-          b64_enc <- enc$encode()
+            # base64 encode the data
+            enc <- Encoder$new(chunks[[i]], "multi")
+            b64_enc <- enc$encode()
 
-          # form body of the request
-          body <- toJSON(list("tableName"=table$table_name,
-                              "index"=i,
-                              "data"=b64_enc),
+            # form body of the request
+            body <- toJSON(list("tableName" = table$table_name,
+                              "index" = i,
+                              "data" = b64_enc),
                          auto_unbox = TRUE)
 
-          # make request to upload the data
-          response <- upload(self$connection, dataset_id = self$dataset_id, session_id = private$session_id,
-                             body=body, verbose=private$debug)
+            # make request to upload the data
+            response <- upload(self$connection, dataset_id = self$dataset_id, session_id = private$session_id,
+                             body = body, verbose = private$debug)
 
-          if (http_error(response)) {
-            # http != 200
-            response_handler(response, msg = "Error uploading data.", throw_error=FALSE)
-            publish_cancel(self$connection, self$dataset_id, private$session_id, verbose=private$debug)
-          }
+            if (http_error(response)) {
+              # http != 200
+              response_handler(response, msg = "Error uploading data.", throw_error = FALSE)
+              publish_cancel(self$connection, self$dataset_id, private$session_id, verbose = private$debug)
+            }
 
-          rows <- rows + nrow(chunks[[i]])
-          if (self$verbose) {
-            private$upload_progress(table$table_name, rows, total)
+            rows <- rows + nrow(chunks[[i]])
+            if (self$verbose) {
+              private$upload_progress(table$table_name, rows, total)
+            }
           }
         }
-      }
-      # if desired, automatically publish the data to the new dataset
-      if (auto_publish) {
-        self$publish()
-      }
-    },
+        # if desired, automatically publish the data to the new dataset
+        if (auto_publish) {
+          self$publish()
+        }
+      },
 
 #' @description Publish the uploaded data to the selected dataset. A dataset can be published just once.
-    publish = function() {
-      response <- publish(connection = self$connection,
+      publish = function() {
+        response <- publish(connection = self$connection,
                               dataset_id = self$dataset_id,
                               session_id = private$session_id,
                               verbose = private$debug)
 
-      if (http_error(response)) {
-        # on error, cancel the previously uploaded data
-        response <- publish_cancel(self$connection, self$dataset_id, private$session_id, verbose = private$debug)
-      } else {
-        status <- 6 # default initial status
-        while (status != 1) {
-          pub <- publish_status(connection = self$connection,
+        if (http_error(response)) {
+          # on error, cancel the previously uploaded data
+          response <- publish_cancel(self$connection, self$dataset_id, private$session_id, verbose = private$debug)
+        } else {
+          status <- 6 # default initial status
+          while (status != 1) {
+            pub <- publish_status(connection = self$connection,
                                 dataset_id = self$dataset_id,
                                 session_id = private$session_id,
                                 verbose = private$debug)
 
-          pub <- content(pub, as = "parsed", type = "application/json")
-          status <- pub$status
-          if (status == 1 & self$verbose) {
-            print(sprintf("Dataset '%s' published successfully.", self$name))
+            pub <- content(pub, as = "parsed", type = "application/json")
+            status <- pub$status
+            if (status == 1 & self$verbose) {
+              print(sprintf("Dataset '%s' published successfully.", self$name))
+            }
           }
         }
-      }
-    },
+      },
 
 #' @description Check the status of data that was uploaded to a dataset.
 #' @return Response status code
-    publish_status = function() {
+      publish_status = function() {
 
-      response <- publish_status(connection=self$connection,
-                                 dataset_id=self$dataset_id,
-                                 session_id=private$session_id,
-                                 verbose=private$debug)
+        response <- publish_status(connection = self$connection,
+                                 dataset_id = self$dataset_id,
+                                 session_id = private$session_id,
+                                 verbose = private$debug)
 
-      status <- content(response, as = "parsed", type = "application/json")
-      if (self$verbose) {
-        print(sprintf("Publish message: %s", status$message))
-        print(sprintf("Publish status: %s", status$status))
-      } else {
-        return(status)
-      }
-    },
+        status <- content(response, as = "parsed", type = "application/json")
+        if (self$verbose) {
+          print(sprintf("Publish message: %s", status$message))
+          print(sprintf("Publish status: %s", status$status))
+        } else {
+          return(status)
+        }
+      },
 
 #' @description Delete a dataset that was previously created using the REST API.
 #' @return Response object from the Intelligence Server acknowledging the deletion process.
-    delete = function() {
+      delete = function() {
 
-      response <- delete_dataset(connection=self$connection,
-                                 dataset_id=self$dataset_id,
+        response <- delete_dataset(connection = self$connection,
+                                 dataset_id = self$dataset_id,
                                  verbose = private$debug)
-      if (self$verbose) {
-        print(paste("Successfully deleted dataset with ID:", self$dataset_id))
-      } else {
-        return(response)
-      }
-    },
+        if (self$verbose) {
+          print(paste("Successfully deleted dataset with ID:", self$dataset_id))
+        } else {
+          return(response)
+        }
+      },
 
 #' @description Certify a dataset that was previously creted using the REST API
 #' @return Response object from the Intelligence Server acknowledging the certification process.
-    certify = function() {
+      certify = function() {
 
-      response <- toggle_dataset_certification(connection=self$connection,
-                                 dataset_id=self$dataset_id,
-                                 verbose=private$debug)
-      if (self$verbose) {
-        print(sprintf("The dataset with ID: %s has been certified.", self$dataset_id))
-      } else {
-        return(response)
+        response <- toggle_dataset_certification(connection = self$connection,
+                                 dataset_id = self$dataset_id,
+                                 verbose = private$debug)
+        if (self$verbose) {
+          print(sprintf("The dataset with ID: %s has been certified.", self$dataset_id))
+        } else {
+          return(response)
+        }
       }
-    }
   ),
 
   private = list(
@@ -369,7 +377,7 @@ Dataset <- R6Class("Dataset",
 
     build_model = function() {
       # generate model of the dataset using Models class
-      model <- Model$new(tables=private$tables, name=self$name, description=self$description, folder_id=self$folder_id)
+      model <- Model$new(tables = private$tables, name = self$name, description = self$description, folder_id = self$folder_id)
       private$model_list <- model$get_model()
 
     },
@@ -391,8 +399,8 @@ Dataset <- R6Class("Dataset",
     load_definition = function() {
       # Load definition of an existing dataset
 
-      response <- cube_info(connection=self$connection,
-                            cube_id=self$dataset_id,
+      response <- cube_info(connection = self$connection,
+                            cube_id = self$dataset_id,
                             verbose = private$debug)
 
       response <- content(response, as = "parsed", type = "application/json")
@@ -432,4 +440,4 @@ Dataset <- R6Class("Dataset",
       }
     }
   )
-)
+      )

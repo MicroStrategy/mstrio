@@ -25,13 +25,19 @@ report <- function(connection, report_id, verbose = FALSE) {
 # This in-memory report instance can be used by other requests.
 # Returns complete HTTP response object.
 report_instance <- function(connection, report_id, body = NULL, offset = 0, limit = 1000, verbose = FALSE) {
+  query <- list(offset = format(offset, scientific = FALSE, trim = TRUE),
+                                limit = format(limit, scientific = FALSE, trim = TRUE))
+  # filtering of extra and formatted metric data is available from version 11.2.2 and higher
+  if (compareVersion(connection$iserver_version, "11.2.0200") %in% c(0, 1)){
+    query <- c(query, fields  = '-data.metricValues.extras,-data.metricValues.formatted')
+  }
+
   response <- httr::POST(url = paste0(connection$base_url, "/api/v2/reports/", report_id, "/instances"),
                          add_headers("X-MSTR-AuthToken" = connection$auth_token,
                                      "X-MSTR-ProjectID" = connection$project_id),
                          body = body,
                          content_type_json(),
-                         query = list(offset = format(offset, scientific = FALSE, trim = TRUE),
-                                    limit = format(limit, scientific = FALSE, trim = TRUE)),
+                         query = query,
                          set_cookies(connection$cookies))
   if (verbose) {
     print(response$url)
@@ -45,11 +51,17 @@ report_instance <- function(connection, report_id, body = NULL, offset = 0, limi
 # created by a POST /v2/reports/{reportId}/instances request.
 # Returns complete HTTP response object.
 report_instance_id <- function(connection, report_id, instance_id, offset = 0, limit = 1000, verbose = FALSE) {
+  query <- list(offset = format(offset, scientific = FALSE, trim = TRUE),
+                                limit = format(limit, scientific = FALSE, trim = TRUE))
+  # filtering of extra and formatted metric data is available from version 11.2.2 and higher
+  if (compareVersion(connection$iserver_version, "11.2.0200") %in% c(0, 1)){
+    query <- c(query, fields  = '-data.metricValues.extras,-data.metricValues.formatted')
+  }
+
   response <- httr::GET(url = paste0(connection$base_url, "/api/v2/reports/", report_id, "/instances/", instance_id),
                         add_headers("X-MSTR-AuthToken" = connection$auth_token,
                                     "X-MSTR-ProjectID" = connection$project_id),
-                        query = list(offset = format(offset, scientific = FALSE, trim = TRUE),
-                                   limit = format(limit, scientific = FALSE, trim = TRUE)),
+                        query = query,
                         set_cookies(connection$cookies))
   if (verbose) {
     print(response$url)
@@ -76,4 +88,19 @@ report_elements <- function(connection, report_id, attribute_id, offset = 0, lim
   error_msg <- "Error loading attribute elements."
   response_handler(response, error_msg)
   return(response)
+}
+
+# Launch an async HTTP request and return the future, for async downloading of attribute elements
+report_elements_async <- function(connection, report_id, attribute_id, offset = 0, limit = 50000, verbose = FALSE) {
+  all_headers <- list("X-MSTR-AuthToken" = connection$auth_token,
+                      "X-MSTR-ProjectID" = connection$project_id,
+                      "Cookie" = connection$cookies)
+  url <- paste0(connection$base_url, "/api/reports/", report_id, "/attributes/", attribute_id, "/elements")
+  request <- HttpRequest$new(
+    url = url,
+    headers = all_headers
+  )
+  future <- request$get(query = list(offset = format(offset, scientific=FALSE, trim=TRUE),
+                                     limit = format(limit, scientific=FALSE, trim=TRUE)))
+  return(future)
 }

@@ -1,7 +1,7 @@
 # api-datasets.R
 #' @import httr
 
-dataset_definition <- function(connection, dataset_id, verbose=FALSE){
+dataset_definition <- function(connection, dataset_id, verbose=FALSE, whitelist=list()){
   # Get the definition of a dataset
 
   response <- httr::GET(url = paste0(connection$base_url, "/api/datasets/",
@@ -16,7 +16,7 @@ dataset_definition <- function(connection, dataset_id, verbose=FALSE){
     print(response$url)
   }
   error_msg <- "Error loading dataset definition. Check dataset ID."
-  response_handler(response, error_msg)
+  response_handler(response, error_msg, whitelist=whitelist)
 
   return(response)
 }

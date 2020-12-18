@@ -8,7 +8,7 @@
 Create the definition of a dataset containing one or more tables. The definition includes the name and description of the dataset and the name and description of each table, attribute, and metric within the dataset.
 }
 \examples{
-\donttest{
+\dontrun{
 # Create data frames
 df1 <- data.frame("id" = c(1, 2, 3, 4, 5),
                   "first_name" = c("Jason", "Molly", "Tina", "Jake", "Amy"),

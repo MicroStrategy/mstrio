@@ -36,3 +36,6 @@ vignettes/*.pdf
 rsconnect/
 .Rproj.user
 cran-comments.md
+
+# Development / Local
+*DS_Store*

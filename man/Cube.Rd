@@ -11,7 +11,7 @@ Create a Cube object to load basic information on a cube dataset. Specify subset
 be fetched through apply_filters() and clear_filters(). Fetch dataset through to_dataframe() method.
 }
 \examples{
-\donttest{
+\dontrun{
 # Create a connection object.
 connection = Connection$new(base_url, username, password, project_name)
 
@@ -199,7 +199,7 @@ Clear previously set filters, allowing all attributes, metrics, and attribute el
 Load all attribute elements of the Cube. Accessible via Cube$attr_elements
 Fetching attriubte elements will also allow for validating attriute elements by the filter object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cube$get_attr_elements(verbose = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Cube$get_attr_elements(limit = 50000, verbose = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

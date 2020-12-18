@@ -59,9 +59,7 @@ sendEnvInfosToGui <- function() {
 }
 
 sendRecentProjectsToGui <- function() {
-  linesFromNewFile <- loadLinesFromFile('recentProjects')
-  linesFromOldFile <- loadLinesFromFile('recentProjects.txt')
-  lines <- if(length(linesFromNewFile) > 0) linesFromNewFile else linesFromOldFile
+  lines <- loadLinesFromFile('recentProjects.txt')
   if(length(lines)>0) {
     for(i in 1:length(lines)){
       cmd <- paste0("backendManager.addRecentProjects('",lines[i],"');")
@@ -71,7 +69,7 @@ sendRecentProjectsToGui <- function() {
 }
 
 sendDataframesToGui <- function() {
-  unlisted <- unlist(eapply(mstrio_env, function(x) is.data.frame(x) & nrow(x) > 0))
+  unlisted <- unlist(eapply(mstrio_env, function(x) is_exactly_data_frame(x) & nrow(x) > 0))
   cmd <- 'backendManager.updateDataFramesList("[]");'
   if(!is.null(unlisted)){
     name <- names(which(unlisted))

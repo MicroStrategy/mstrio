@@ -10,7 +10,7 @@ When updating a pre-existing dataset, provide the dataset identifier. Tables are
 dataset in an iterative manner using `add_table()`.
 }
 \examples{
-\donttest{
+\dontrun{
 # Create data frames
 df1 <- data.frame("id" = c(1, 2, 3, 4, 5),
                   "first_name" = c("Jason", "Molly", "Tina", "Jake", "Amy"),
@@ -47,7 +47,7 @@ ds$update(auto_publish=TRUE)
 # By default Dataset$update() will upload the data to the Intelligence Server and publish the
  dataset.
 # If you just want to update the dataset but not publish the row-level data, use
-Dataset$create(auto_publish=FALSE)
+Dataset$update(auto_publish=FALSE)
 
 # By default, the raw data is transmitted to the server in increments of 100,000 rows. On very
 # large datasets (>1 GB), it is beneficial to increase the number of rows transmitted to the

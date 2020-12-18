@@ -8,7 +8,7 @@
 Allows to establish, renew, check status and close the connection with MicroStrategy Intelligence Server.
 }
 \examples{
-\donttest{
+\dontrun{
 # Create a connection object.
 connection = Connection$new(base_url, username, password, project_name)
 
@@ -83,6 +83,7 @@ Establishes new connection with MicroStrategy Intelligence Server.
   project_id = NULL,
   login_mode = 1,
   ssl_verify = TRUE,
+  proxies = NULL,
   identity_token = NULL,
   verbose = TRUE
 )}\if{html}{\out{</div>}}
@@ -104,6 +105,8 @@ Establishes new connection with MicroStrategy Intelligence Server.
 \item{\code{login_mode}}{Specifies authentication mode to use. Standard = 1 (default) or LDAP = 16.}
 
 \item{\code{ssl_verify}}{If True (default), verifies the server's SSL certificates with each request.}
+
+\item{\code{proxies}}{If NULL (default) proxy is not defined. To set proxy use formula: (<username>:<password>@)<ip_address>:<port> ()-optional}
 
 \item{\code{identity_token}}{Identity token for delegated session. Used for connection initialized by GUI.}
 

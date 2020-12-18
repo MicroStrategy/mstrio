@@ -25,6 +25,7 @@ With **mstrio**, it's easy to integrate cross-departmental, trustworthy business
   - [Connect to MicroStrategy](#connect-to-microstrategy)
     - [Authentication Methods](#authentication-methods)
     - [SSL Certificates](#ssl-certificates)
+    - [Proxy](#proxy)
   - [Import data from Cubes and Reports](#import-data-from-cubes-and-reports)
   - [Export Data into MicroStrategy with Datasets](#export-data-into-microstrategy-with-datasets)
     - [Create a New Dataset](#create-a-new-dataset)
@@ -44,7 +45,7 @@ With **mstrio**, it's easy to integrate cross-departmental, trustworthy business
 * MicroStrategy 2019 Update 4 (11.1.4)+
 
 ### MicroStrategy for RStudio
-* RStudio Desktop 1.2.1335+
+* RStudio Desktop 1.2.1335+ or RStudio Server 1.2.5042+
 * [CORS enabled on MicroStrategy Library server][cors_manual]
 * [Cookies sent by MicroStrategy Library server have `SameSite` parameter set to `None`][same_site_manual]
 
@@ -59,11 +60,11 @@ install.packages("mstrio")
 # Versioning & Main Features
 
 ## Versioning
-Current version: **11.2.2.1** (4 August 2020). Check out [Release Notes][release_notes] to see what's new.
+Current version: **11.3.0.1** (18 December 2020). Check out [Release Notes][release_notes] to see what's new.
 
 Functionalities may be added to **mstrio** either in combination with annual MicroStrategy platform releases or through updates to platform releases. To ensure compatibility with APIs supported by your MicroStrategy environment, it is recommended to install a version of **mstrio** that corresponds to the version number of your MicroStrategy environment.
 
-The current version of mstrio is 11.2.2.1 and is supported on MicroStrategy 2019 Update 4 (11.1.4) and later. To leverage MicroStrategy for RStudio, mstrio (11.1.4) and MicroStrategy 2019 Update 4 (11.1.4) or higher are required.
+The current version of mstrio is 11.3.0.1 and is supported on MicroStrategy 2019 Update 4 (11.1.4) and later. To leverage MicroStrategy for RStudio, mstrio (11.1.4) and MicroStrategy 2019 Update 4 (11.1.4) or higher are required.
 
 If you intend to use mstrio with MicroStrategy version older than 11.1.4, refer to the [CRAN package archive][cran_archive] to download mstrio 10.11.1, which is supported on:
 
@@ -145,6 +146,22 @@ By default, SSL certificates are validated with each API request. To turn this o
 
 ```R
 conn <- Connection$new(base_url=base_url, username=username, password=password, project_name=project_name, ssl_verify=FALSE)
+```
+
+### Proxy
+
+Optionally, proxy settings can be set for the MicroStrategy `Connection` object.
+
+```R
+proxies <- '<ip_address>:<port>'
+conn <- Connection$new(base_url=base_url, username=username, password=password, project_name=project_name, proxies=proxies)
+```
+
+User can also specify username and password in `proxies` parameter if needed:
+
+```R
+proxies <- '<username>:<password>@<ip_address>:<port>'
+conn <- Connection$new(base_url=base_url, username=username, password=password, project_name=project_name, proxies=proxies)
 ```
 
 ## Import data from Cubes and Reports

@@ -6,7 +6,7 @@
 #' @description Parse the JSON response from cube/report v2 download api and convert the data into a R data frame
 #' @field response JSON response from the cube/report v2 download api
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Create a parser object
 #' p <- Parser$new(response)
 #'
