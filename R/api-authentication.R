@@ -7,7 +7,7 @@ login <- function(connection, verbose=FALSE){
                          body=list("username"=connection$username,
                                    "password"=connection$password,
                                    "loginMode"=connection$login_mode,
-                                   "applicationType"=65),
+                                   "applicationType"=35),
                          encode="json")
   if (verbose){
     print(response$url)

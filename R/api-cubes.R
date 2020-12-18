@@ -58,17 +58,37 @@ cube_elements <- function(connection, cube_id, attribute_id, offset = 0, limit =
   return(response)
 }
 
+cube_elements_async <- function(connection, cube_id, attribute_id, offset = 0, limit = 50000, verbose = FALSE) {
+  all_headers <- list("X-MSTR-AuthToken" = connection$auth_token,
+                      "X-MSTR-ProjectID" = connection$project_id,
+                      "Cookie" = connection$cookies)
+  url <- paste0(connection$base_url, "/api/cubes/", cube_id, "/attributes/", attribute_id, "/elements")
+  request <- HttpRequest$new(
+    url = url,
+    headers = all_headers
+  )
+  future <- request$get(query = list(offset = format(offset, scientific=FALSE, trim=TRUE),
+                                     limit = format(limit, scientific=FALSE, trim=TRUE)))
+  return(future)
+}
+
 # Get the results of a newly created cube instance.
 # This in-memory instance can be used by other requests.
 # Returns complete HTTP response object.
 cube_instance <- function(connection, cube_id, body = NULL, offset = 0, limit = 1000, verbose = FALSE) {
+  query <- list(offset = format(offset, scientific = FALSE, trim = TRUE),
+                                limit = format(limit, scientific = FALSE, trim = TRUE))
+  # filtering of extra and formatted metric data is available from version 11.2.2 and higher
+  if (compareVersion(connection$iserver_version, "11.2.0200") %in% c(0, 1)){
+    query <- c(query, fields  = '-data.metricValues.extras,-data.metricValues.formatted')
+  }
+
   response <- httr::POST(url = paste0(connection$base_url, "/api/v2/cubes/", cube_id, "/instances"),
                          add_headers("X-MSTR-AuthToken" = connection$auth_token,
                                      "X-MSTR-ProjectID" = connection$project_id),
                          body = body,
                          content_type_json(),
-                         query = list(offset = format(offset, scientific = FALSE, trim = TRUE),
-                                      limit = format(limit, scientific = FALSE, trim = TRUE)),
+                         query = query,
                          set_cookies(connection$cookies))
   if (verbose) {
     print(response$url)
@@ -83,11 +103,17 @@ cube_instance <- function(connection, cube_id, body = NULL, offset = 0, limit = 
 # created by  a POST /cubes/{cubesId}/instances request.
 # Returns complete HTTP response object.
 cube_instance_id <- function(connection, cube_id, instance_id, offset = 0, limit = 1000, verbose = FALSE) {
+  query <- list(offset = format(offset, scientific = FALSE, trim = TRUE),
+                                limit = format(limit, scientific = FALSE, trim = TRUE))
+  # filtering of extra and formatted metric data is available from version 11.2.2 and higher
+  if (compareVersion(connection$iserver_version, "11.2.0200") %in% c(0, 1)){
+    query <- c(query, fields  = '-data.metricValues.extras,-data.metricValues.formatted')
+  }
+
   response <- httr::GET(url = paste0(connection$base_url, "/api/v2/cubes/", cube_id, "/instances/", instance_id),
                         add_headers("X-MSTR-AuthToken" = connection$auth_token,
                                     "X-MSTR-ProjectID" = connection$project_id),
-                        query = list(offset = format(offset, scientific = FALSE, trim = TRUE),
-                                   limit = format(limit, scientific = FALSE, trim = TRUE)),
+                        query = query,
                         set_cookies(connection$cookies))
   if (verbose) {
     print(response$url)

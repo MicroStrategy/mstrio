@@ -6,6 +6,7 @@
 server <- function(input, output, session) {
   shinyjs::useShinyjs(html = TRUE)
 
+  createUserConfigDirectory();
   sendEnvInfosToGui();
   sendPackageVersionToGui();
   sendRecentProjectsToGui();
@@ -13,17 +14,19 @@ server <- function(input, output, session) {
 
   shiny::observeEvent(input$triggerImport, {
     importDataset(input$baseUrl, input$projectId, input$identityToken,
-                  input$datasetId, input$originalName, input$saveAsName, input$datasetType,
-                  input$datasetBody, input$instanceId);
+                  input$datasetId, input$originalName, input$saveAsName,
+                  input$datasetType, input$datasetBody, input$instanceId);
   })
 
   shiny::observeEvent(input$triggerExportDataframes, {
-    exportDataframes(input$baseUrl, input$projectId, input$identityToken, input$saveAsName,
-                    input$description, input$selectedDataframes, input$folderId, input$certify)
+    exportDataframes(input$baseUrl, input$projectId, input$identityToken,
+                     input$saveAsName, input$description, input$selectedDataframes,
+                     input$folderId, input$certify)
   })
 
-    shiny::observeEvent(input$triggerCubeUpdate, {
-    updateCube(input$baseUrl, input$projectId, input$identityToken, input$cubeId, input$cubeName, input$updatePolicies)
+  shiny::observeEvent(input$triggerCubeUpdate, {
+    updateCube(input$baseUrl, input$projectId, input$identityToken,
+               input$cubeId, input$cubeName, input$updatePolicies)
   })
 
   shiny::observeEvent(input$onExportDataMode,{

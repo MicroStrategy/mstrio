@@ -17,7 +17,7 @@
 #' @field identity_token Identity token for delegated session. Used for connection initialized by GUI.
 #' @field verbose If True (default), displays additional messages.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Create a connection object.
 #' connection = Connection$new(base_url, username, password, project_name)
 #'
@@ -64,15 +64,16 @@ Connection <- R6Class("Connection",
 #' @param project_id ID of the connected MicroStrategy Project. One of project name or project id is necessary.
 #' @param login_mode Specifies authentication mode to use. Standard = 1 (default) or LDAP = 16.
 #' @param ssl_verify If True (default), verifies the server's SSL certificates with each request.
+#' @param proxies If NULL (default) proxy is not defined. To set proxy use formula: (<username>:<password>@)<ip_address>:<port> ()-optional
 #' @param identity_token Identity token for delegated session. Used for connection initialized by GUI.
 #' @param verbose If True, displays additional messages. FALSE by default.
 #' @return A new "Connection" object.
     initialize = function(base_url, username = NULL, password = NULL, project_name = NULL, project_id = NULL, login_mode = 1,
-                          ssl_verify = TRUE, identity_token = NULL, verbose = TRUE) {
+                          ssl_verify = TRUE, proxies = NULL, identity_token = NULL, verbose = TRUE) {
 
       # Basic error checking for input types
       if (class(base_url) != "character") stop("'base_url' must be a character; try class(base_url)")
-      if(is.null(identity_token)) {
+      if (is.null(identity_token)) {
         if (!is.null(username) && class(username) != "character") stop("'username' must be a character; try class(username)")
         if (!is.null(password) && class(password) != "character") stop("'password' must be a character; try class(password)")
       }
@@ -98,6 +99,11 @@ Connection <- R6Class("Connection",
       self$identity_token <- identity_token
       self$verbose <- verbose
 
+      # reset last used config
+      reset_config()
+      if (!is.null(proxies))
+        private$set_proxy(proxies)
+
       # Check if iServer and Web version are supported by MSTRIO
       info <- check_version(self$base_url, private$VRCH)
       private$version_ok <- info$is_ok
@@ -112,17 +118,15 @@ Connection <- R6Class("Connection",
           self$ssl_verify <- ssl_verify
         }
 
-        if(is.null(identity_token))
+        if (is.null(identity_token))
           # Makes connection
           self$connect()
         else
           # Delegate identity token
           self$delegate()
 
-        if (is.null(project_id)) {
-          # Connect to the project and set object's project id property
-          self$project_id <- private$select_project()
-        }
+        private$select_project()
+
       }
       else {
         stop(sprintf("This version of mstrio is only supported on MicroStrategy %s or higher.
@@ -153,7 +157,7 @@ Connection <- R6Class("Connection",
       response <- delegate(connection = self, verbose = private$debug)
       self$auth_token <- response$headers[["x-mstr-authtoken"]]
       self$cookies <- response$headers[["set-cookie"]]
-      if (self$verbose == TRUE) {print("Connection with MicroStrategy Intelligence Server has been delegated.")}
+      if (self$verbose == TRUE) { print("Connection with MicroStrategy Intelligence Server has been delegated.") }
     },
 
 #' @description
@@ -173,18 +177,18 @@ Connection <- R6Class("Connection",
 
 #' @description
 #' Renews connection with MicroStrategy REST API.
-    renew=function() {
-      response <- session_renew(connection=self, verbose=private$debug)
+    renew = function() {
+      response <- session_renew(connection = self, verbose = private$debug)
       if (response$status_code == 204) {
         if (self$verbose == TRUE) { print("Connection with MicroStrategy Intelligence Server was renewed.") }
-        } else {
-          # Create session
-          response <- login(connection=self, verbose=private$debug)
-          # Add authentication token and cookies to connection object
-          self$auth_token <- response$headers[["x-mstr-authtoken"]]
-          self$cookies <- response$headers[["set-cookie"]]
-          if (self$verbose == TRUE) { print("Connection with MicroStrategy Intelligence Server was not active. New connection has been established.") }
-          }
+      } else {
+        # Create session
+        response <- login(connection = self, verbose = private$debug)
+        # Add authentication token and cookies to connection object
+        self$auth_token <- response$headers[["x-mstr-authtoken"]]
+        self$cookies <- response$headers[["set-cookie"]]
+        if (self$verbose == TRUE) { print("Connection with MicroStrategy Intelligence Server was not active. New connection has been established.") }
+      }
     },
 
 #' @description
@@ -204,15 +208,30 @@ Connection <- R6Class("Connection",
 # private instance variables
     VRCH = "11.1.0400",
     version_ok = NULL,
-    debug=FALSE,
+    debug = FALSE,
 
     select_project = function() {
       response <- projects(connection = self, verbose = private$debug)
       projs <- content(response)
-      for (proj in projs) {
-        if (proj$name == self$project_name) {
-          return(proj$id)
+
+      proj_msg <- " "
+
+      if (!is.null(self$project_name)) {
+        for (proj in projs) {
+          if (proj$name == self$project_name) {
+            self$project_id = proj$id
+            return()
+          }
         }
+        proj_msg <- paste0(" with name: ", self$project_name, " ")
+      } else {
+        for (proj in projs) {
+          if (proj$id == self$project_id) {
+            self$project_name = proj$name
+            return()
+          }
+        }
+        proj_msg <- paste0(" with id: ", self$project_id, " ")
       }
       # If executing the below, it means the project was not found in the result set.
       # Possible typo in project name parameter.
@@ -222,12 +241,42 @@ Connection <- R6Class("Connection",
       # Raises server error message
       status <- http_status(response)
       errors <- content(response)
-      usrmsg <- paste0("Project '", self$project_name, "' not found. Check project name and try again.")
+      usrmsg <- paste0("Project", proj_msg, "not found. Check project name and try again.")
 
       stop(sprintf("%s\n HTTP Error: %s %s %s\n I-Server Error: %s %s",
                   usrmsg, response$status_code, status$reason, status$message, errors$code, errors$message),
           call. = FALSE)
 
+    },
+
+    set_proxy = function(proxy) {
+      #check if proxies are passed in proper formatting
+      index <- gregexpr('@', proxy)[[1]][length(gregexpr('@', proxy)[[1]])]
+      username <- NULL
+      password <- NULL
+      if (index > 0) {
+        credentials <- substr(proxy, 1, index - 1)
+        username <- substr(credentials, 1, gregexpr(':', credentials)[[1]][1] - 1)
+        password <- substr(credentials, gregexpr(':', credentials)[[1]][1] + 1, nchar(credentials))
+        host <- substr(proxy, index + 1, nchar(proxy))
+      }
+      else {
+        host <- proxy
+      }
+      if (grepl(':', host)) {
+        ip <- substr(host, 1, gregexpr(':', host)[[1]][1] - 1)
+        port <- as.numeric(substr(host, gregexpr(':', host)[[1]][1] + 1, nchar(host)))
+        #set config for httr requests
+        set_config(use_proxy(url = ip,
+                             port = port,
+                             username = username,
+                             password = password),
+                    override = TRUE)
+      }
+      else {
+        stop(print("Passed proxy has wrong formula. Proper formula is: (user:password@)url:port. ()-optional"), call. = FALSE)
+      }
     }
+
   )
 )

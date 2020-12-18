@@ -9,7 +9,15 @@ projects <- function(connection, verbose=FALSE){
   if (verbose){
     print(response$url)
   }
-  error_msg <- paste("Error connecting to project", connection$project_name, ". Check project name and try again.")
+  if (!is.null(connection$project_name)) {
+    proj_msg <- paste0(" with name: ", connection$project_name, ". Check project name")
+  } else if (!is.null(connection$project_id)) {
+    proj_msg <- paste0(" with id: ", connection$project_id, ". Check project id")
+  } else {
+    proj_msg = "Check project name and id"
+  }
+
+  error_msg <- paste("Error connecting to project", proj_msg, " and try again.")
   response_handler(response, error_msg)
   return(response)
 }
