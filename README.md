@@ -103,6 +103,8 @@ To learn more about the package take a look at the **mstrio vignettes**.
 
 The `Connection` object manages your connection to MicroStrategy. Connect to your MicroStrategy environment by providing the URL to the MicroStrategy REST API server, your username, password and the ID of the Project to connect to. When a `Connection` object is created the user will be automatically logged-in.
 
+  **Note**: to log into Library and use mstrio user needs to have UseLibrary privilege.
+
 ```R
 library(mstrio)
 
