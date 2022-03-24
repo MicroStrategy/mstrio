@@ -22,13 +22,13 @@ gen_mstr_error <- function(response, custom_message) {
   ticket_id <- content$ticketId
   error_subclass <- detect_error_subclass(http_code, error_code, iserver_code)
   error_class <- ifelse(!is.null(error_subclass), c(error_subclass, MSTR_ERROR_CLASS), MSTR_ERROR_CLASS)
-  error_message <- sprintf("%s: %s (Ticket ID: %s, iServerCode: %i)", error_code, server_message, ticket_id, iserver_code)
+  iserver_code_char <- ifelse(is.null(iserver_code), "NULL", iserver_code)
+  error_message <- sprintf("%s: %s (Ticket ID: %s, iServerCode: %s)", error_code, server_message, ticket_id, iserver_code_char)
   full_message <- ifelse(!is.null(custom_message), sprintf("%s\n%s", custom_message, error_message), error_message)
   gen_custom_error(.subclass = error_class, message = full_message, http_code = http_code, error_code = error_code, iserver_code = iserver_code, server_message = server_message, ticket_id = ticket_id, custom_message = custom_message)
 }
-
 detect_error_subclass <- function(http_code, error_code, iserver_code = NULL) {
-  if (iserver_code == ISERVER_CODE_TIMEOUT) {
+  if (!is.null(iserver_code) && iserver_code == ISERVER_CODE_TIMEOUT) {
     return(MSTR_TIMEOUT_ERROR_CLASS)
   }
   else {

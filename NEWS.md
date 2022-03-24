@@ -1,4 +1,19 @@
 # Changelog
+## mstrio 11.3.5.101
+
+# 11.3.5.101 - 2022/03/25
+
+### Minor changes
+
+* term `application` renamed to `project` in RStudio connector
+* enhancement - improved error handling while comparing
+`NULL` to value (error messages)
+
+### Bug fixes
+
+* resolved Cube creation issue - added empty cookie handler for Cube
+
+## mstrio 11.3.1
 
 ## 11.3.0.1 - 2020/12/18
 

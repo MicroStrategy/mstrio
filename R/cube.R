@@ -301,7 +301,34 @@ Cube <- R6Class("Cube",
 
       response <- cube_info(connection = self$connection, cube_id = self$cube_id, verbose = private$debug)
 
-      private$cookies <- paste0("JSESSIONID=", response$cookies$value[[1]], "; iSession=", response$cookies$value[[2]])
+      jsessionid <- tryCatch(
+        {
+          response$cookies$value[[1]]
+        },
+        error = function(e) {
+          warning("JSESSIONID cookie value is NULL")
+          return(NULL)
+        }
+      )
+      
+      isession <- tryCatch(
+        {
+          response$cookies$value[[2]]
+        },
+        error = function(e) {
+          warning("iSession cookie value is NULL")
+          return(NULL)
+        }
+      )
+      
+      private$cookies <- tryCatch(
+        {
+          paste0("JSESSIONID=", jsessionid, "; iSession=", isession)
+        },
+        error = function(e) {
+          stop(paste0("Error setting the IServer cookies\n"), e)
+        }
+      )
 
       info <- content(response)$cubesInfos[[1]]
 

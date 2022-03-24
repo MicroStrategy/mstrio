@@ -126,11 +126,8 @@ speed. If False (default), this feature will be disabled.}
 \subsection{Method \code{to_dataframe()}}{
 Extract contents of a cube into a R Data Frame.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cube$to_dataframe(
-  limit = NULL,
-  multi_df = FALSE,
-  callback = function(x, y) { }
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Cube$to_dataframe(limit = NULL, multi_df = FALSE, callback = function(x, y) {
+})}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

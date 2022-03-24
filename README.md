@@ -60,11 +60,11 @@ install.packages("mstrio")
 # Versioning & Main Features
 
 ## Versioning
-Current version: **11.3.0.1** (18 December 2020). Check out [Release Notes][release_notes] to see what's new.
+Current version: **11.3.5.101** (25 March 2022). Check out [Release Notes][release_notes] to see what's new.
 
 Functionalities may be added to **mstrio** either in combination with annual MicroStrategy platform releases or through updates to platform releases. To ensure compatibility with APIs supported by your MicroStrategy environment, it is recommended to install a version of **mstrio** that corresponds to the version number of your MicroStrategy environment.
 
-The current version of mstrio is 11.3.0.1 and is supported on MicroStrategy 2019 Update 4 (11.1.4) and later. To leverage MicroStrategy for RStudio, mstrio (11.1.4) and MicroStrategy 2019 Update 4 (11.1.4) or higher are required.
+The current version of mstrio is 11.3.5.101 and is supported on MicroStrategy 2019 Update 4 (11.1.4) and later. To leverage MicroStrategy for RStudio, mstrio (11.1.4) and MicroStrategy 2019 Update 4 (11.1.4) or higher are required.
 
 If you intend to use mstrio with MicroStrategy version older than 11.1.4, refer to the [CRAN package archive][cran_archive] to download mstrio 10.11.1, which is supported on:
 
@@ -93,7 +93,7 @@ remotes::install_local("path/to/local/tarball/")
 - Import data from a Cube into an R Data Frame
 - Filter cubes and reports by selecting attributes and metrics or specifying a view filter
 - Export data into MicroStrategy by creating Datasets
-- Update, replace, or append new data to an existing Dataset
+- Replace new data to an existing Dataset
 
 To learn more about the package take a look at the **mstrio vignettes**.
 
@@ -102,7 +102,7 @@ To learn more about the package take a look at the **mstrio vignettes**.
 ## Connect to MicroStrategy
 
 The `Connection` object manages your connection to MicroStrategy. Connect to your MicroStrategy environment by providing the URL to the MicroStrategy REST API server, your username, password and the ID of the Project to connect to. When a `Connection` object is created the user will be automatically logged-in.
-
+  
   **Note**: to log into Library and use mstrio user needs to have UseLibrary privilege.
 
 ```R
@@ -252,8 +252,8 @@ sales_df <- data.frame("store_id" = c(1, 2, 3),
                        stringsAsFactors = FALSE)
 
 ds = Dataset$new(connection=conn, name="Store Analysis")
-ds$add_table(name="Stores", data_frame=stores_df, update_policy="add")
-ds$add_table(name="Sales", data_frame=sales_df, update_policy="add")
+ds$add_table(name="Stores", data_frame=stores_df, update_policy="replace")
+ds$add_table(name="Sales", data_frame=sales_df, update_policy="replace")
 ds$create()
 ```
 
@@ -267,10 +267,10 @@ sales data: `["$450", "$325"]`). To control this behavior, provide a list of col
 type to another.
 
 ```R
-ds$add_table(name="Stores", data_frame=stores_df, update_policy="add",
+ds$add_table(name="Stores", data_frame=stores_df, update_policy="replace",
              to_attribute=list("store_id"))
 
-ds$add_table(name="Sales", data_frame=sales_df, update_policy="add",
+ds$add_table(name="Sales", data_frame=sales_df, update_policy="replace",
              to_attribute=list("store_id"),
              to_metric=list("sales_fmt"))
 ```
@@ -286,14 +286,13 @@ allows you to update the previously created dataset.
 
 ```R
 ds <- Dataset$new(connection=conn, dataset_id=dataset_id)
-ds$add_table(name="Stores", data_frame=stores_df, update_policy="update")
-ds$add_table(name="Sales", data_frame=stores_df, update_policy="upsert")
+ds$add_table(name="Stores", data_frame=stores_df, update_policy="replace")
+ds$add_table(name="Sales", data_frame=stores_df, update_policy="replace")
 ds$update()
 ```
 
-The `update_policy` parameter controls how the data in the Dataset gets updated. Currently supported update operations
-are `add` (inserts entirely new data), `update` (updates existing data), `upsert` (simultaneously updates existing data
-and inserts new data), and `replace` (truncates and replaces the data).
+The `update_policy` parameter controls how the data in the Dataset gets updated. Currently supported update operation
+is `replace` (truncates and replaces the data).
 
 By default `Dataset$update()` will upload the data to the Intelligence Server and publish the Dataset. If you just want
 to update the Dataset but not publish the row-level data, use `Dataset$update(auto_publish=FALSE)`. To publish it later, use `Dataset$publish()`.
