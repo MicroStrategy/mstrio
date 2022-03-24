@@ -1,20 +1,11 @@
 Package: mstrio
 Type: Package
 Title: Interface for 'MicroStrategy' REST API
-Version: 11.3.0.1
+Version: 11.3.5.101
+DevVersion: 1011
 Maintainer: Piotr Kowal <pkowal@microstrategy.com>
 Authors@R: c(
-    person("Scott", "Rigney", email = "srigney@microstrategy.com", role = c("aut")),
-    person("Piotr", "Kowal", email = "pkowal@microstrategy.com", role = c("cre")),
-    person("Piotr", "Czyz", email = "pczyz@microstrategy.com", role = c("ctb")),
-    person("Ignacy", "Hologa", email = "ihologa@microstrategy.com", role = c("ctb")),
-    person("Michal", "Drzazga", email = "mdrzazga@microstrategy.com", role = c("ctb")),
-    person("Oskar", "Duda", email = "oduda@microstrategy.com", role = c("ctb")),
-    person("Filip", "Godlewski", email = "fgodlewski@microstrategy.com", role = c("ctb")),
-    person("Karolina", "Sachmata", email = "ksachmata@microstrategy.com", role = c("ctb")),
-    person("Adam", "Piotrowski", email = "apiotrowski@microstrategy.com", role = c("ctb")),
-    person("Zofia", "Rogala", email = "zrogala@microstrategy.com", role = c("ctb")),
-    person("Wojciech", "Antonczyk", email = "wantonczyk@microstrategy.com", role = c("ctb"))
+    person("Piotr", "Kowal", email = "pkowal@microstrategy.com", role = c("cre"))
     )
 Description: Interface for creating data sets and extracting data through the 'MicroStrategy' REST API. Access the demo API at <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>.
 License: Apache License 2.0 | file LICENSE
@@ -32,14 +23,16 @@ Imports:
   R6,
   rstudioapi,
   shinyjs,
-  shiny
+  shiny,
+  vctrs (>= 0.3.8)
 Suggests:
   httptest,
   knitr,
+  markdown,
   rmarkdown,
   testthat
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Collate:
     'api-authentication.R'
     'api-cubes.R'
