@@ -2,17 +2,17 @@ Package: mstrio
 Type: Package
 Title: Interface for 'MicroStrategy' REST API
 Version: 11.3.5.101
-DevVersion: 1011
 Maintainer: Piotr Kowal <pkowal@microstrategy.com>
 Authors@R: c(
-    person("Piotr", "Kowal", email = "pkowal@microstrategy.com", role = c("cre"))
+    person("Piotr", "Kowal", email = "pkowal@microstrategy.com", role = c("aut", "cre"))
     )
-Description: Interface for creating data sets and extracting data through the 'MicroStrategy' REST API. Access the demo API at <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>.
+Description: Interface for creating data sets and extracting data through the
+    'MicroStrategy' REST API. Access the demo API at
+    <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>.
 License: Apache License 2.0 | file LICENSE
 Encoding: UTF-8
-LazyData: true
 Depends:
-  R (>= 3.4.0)
+  R (>= 3.6.0)
 Imports:
   httr (>= 1.4.1),
   crul,
@@ -21,6 +21,7 @@ Imports:
   methods,
   data.table,
   R6,
+  markdown,
   rstudioapi,
   shinyjs,
   shiny,
@@ -28,11 +29,10 @@ Imports:
 Suggests:
   httptest,
   knitr,
-  markdown,
   rmarkdown,
   testthat
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Collate:
     'api-authentication.R'
     'api-cubes.R'

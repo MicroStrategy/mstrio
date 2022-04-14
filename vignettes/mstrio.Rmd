@@ -18,7 +18,7 @@ The MicroStrategy REST API is a RESTful application that uses HTTP requests such
 This R package was designed to give data scientists a way to easily extract data from MicroStrategy cubes and reports, and create new in-memory datasets within MicroStrategy.
 
 ### More resources
-- [Learn more about the MicroStrategy REST API](https://lw.microstrategy.com/msdz/MSDL/GARelease_Current/docs/projects/RESTSDK/Content/topics/REST_API/REST_API.htm)
+- [Learn more about the MicroStrategy REST API](https://www2.microstrategy.com/producthelp/Current/RESTSDK/Content/topics/REST_API/REST_API.htm)
 - [MicroStrategy REST API Demo environment](https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html)
 
 ## Connecting to the REST API server

@@ -41,7 +41,7 @@ With **mstrio**, it's easy to integrate cross-departmental, trustworthy business
 ## Prerequisites
 
 ### mstrio
-* R 3.4.0+
+* R 3.6.0+
 * MicroStrategy 2019 Update 4 (11.1.4)+
 
 ### MicroStrategy for RStudio
@@ -102,7 +102,7 @@ To learn more about the package take a look at the **mstrio vignettes**.
 ## Connect to MicroStrategy
 
 The `Connection` object manages your connection to MicroStrategy. Connect to your MicroStrategy environment by providing the URL to the MicroStrategy REST API server, your username, password and the ID of the Project to connect to. When a `Connection` object is created the user will be automatically logged-in.
-  
+
   **Note**: to log into Library and use mstrio user needs to have UseLibrary privilege.
 
 ```R
@@ -322,15 +322,11 @@ Updating Datasets that were **not** created using the MicroStrategy REST API is 
 
 RStudio and Shiny are trademarks of RStudio, Inc.
 
-[cran]: <https://cran.r-project.org/package=mstrio>
-[cran_archive]: <https://cran.r-project.org/src/contrib/Archive/mstrio>
-[py_github]: <https://github.com/MicroStrategy/mstrio-py>
-[r_github]: <https://github.com/MicroStrategy/mstrio>
-[mstr_datasci_comm]: <https://community.microstrategy.com/s/topic/0TO44000000AJ2dGAG/python-r-u108>
+[mstr_datasci_comm]: <https://community.microstrategy.com/s/topic/0TO44000000AJ2dGAG/python-r-u108?language=en_US>
 [mstr_rest_demo]: <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>
-[mstr_rest_docs]: <https://lw.microstrategy.com/msdz/MSDL/GARelease_Current/docs/projects/RESTSDK/Content/topics/REST_API/REST_API.htm>
+[mstr_rest_docs]: <https://www2.microstrategy.com/producthelp/Current/RESTSDK/Content/topics/REST_API/REST_API.htm>
 [mstr_help_docs]: <https://www2.microstrategy.com/producthelp/current/MSTR-for-RStudio/Content/mstr_for_rstudio.htm>
-[cors_manual]: <https://lw.microstrategy.com/msdz/MSDL/GARelease_Current/docs/projects/EmbeddingSDK/Content/topics/EnableCORS.htm>
-[same_site_manual]: <https://community.microstrategy.com/s/article/Chrome-v80-Cookie-Behavior-and-the-impact-on-MicroStrategy-Deployments?language=undefined&t=1581355581289>
+[cors_manual]: <https://www2.microstrategy.com/producthelp/Current/EmbeddingSDK/Content/topics/EnableCORS.htm>
+[same_site_manual]: <https://community.microstrategy.com/s/article/Chrome-v80-Cookie-Behavior-and-the-impact-on-MicroStrategy-Deployments?language=en_US&t=1581355581289>
 [release_notes]: <https://github.com/MicroStrategy/mstrio/blob/master/NEWS.md>
 [logo]: <https://github.com/MicroStrategy/mstrio/blob/master/man/mstr-logo.png?raw=true>
