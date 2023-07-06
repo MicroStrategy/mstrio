@@ -93,7 +93,7 @@ remotes::install_local("path/to/local/tarball/")
 - Import data from a Cube into an R Data Frame
 - Filter cubes and reports by selecting attributes and metrics or specifying a view filter
 - Export data into MicroStrategy by creating Datasets
-- Replace new data to an existing Dataset
+- Update, replace, or append new data to an existing Dataset
 
 To learn more about the package take a look at the **mstrio vignettes**.
 
@@ -252,8 +252,8 @@ sales_df <- data.frame("store_id" = c(1, 2, 3),
                        stringsAsFactors = FALSE)
 
 ds = Dataset$new(connection=conn, name="Store Analysis")
-ds$add_table(name="Stores", data_frame=stores_df, update_policy="replace")
-ds$add_table(name="Sales", data_frame=sales_df, update_policy="replace")
+ds$add_table(name="Stores", data_frame=stores_df, update_policy="add")
+ds$add_table(name="Sales", data_frame=sales_df, update_policy="add")
 ds$create()
 ```
 
@@ -267,10 +267,10 @@ sales data: `["$450", "$325"]`). To control this behavior, provide a list of col
 type to another.
 
 ```R
-ds$add_table(name="Stores", data_frame=stores_df, update_policy="replace",
+ds$add_table(name="Stores", data_frame=stores_df, update_policy="add",
              to_attribute=list("store_id"))
 
-ds$add_table(name="Sales", data_frame=sales_df, update_policy="replace",
+ds$add_table(name="Sales", data_frame=sales_df, update_policy="add",
              to_attribute=list("store_id"),
              to_metric=list("sales_fmt"))
 ```
@@ -286,13 +286,12 @@ allows you to update the previously created dataset.
 
 ```R
 ds <- Dataset$new(connection=conn, dataset_id=dataset_id)
-ds$add_table(name="Stores", data_frame=stores_df, update_policy="replace")
-ds$add_table(name="Sales", data_frame=stores_df, update_policy="replace")
+ds$add_table(name="Stores", data_frame=stores_df, update_policy="update")
+ds$add_table(name="Sales", data_frame=stores_df, update_policy="upsert")
 ds$update()
 ```
 
-The `update_policy` parameter controls how the data in the Dataset gets updated. Currently supported update operation
-is `replace` (truncates and replaces the data).
+The `update_policy` parameter controls how the data in the Dataset gets updated. Currently supported update operations are `add` (inserts entirely new data), `update` (updates existing data), `upsert` (simultaneously updates existing data and inserts new data), and `replace` (truncates and replaces the data).
 
 By default `Dataset$update()` will upload the data to the Intelligence Server and publish the Dataset. If you just want
 to update the Dataset but not publish the row-level data, use `Dataset$update(auto_publish=FALSE)`. To publish it later, use `Dataset$publish()`.
@@ -322,11 +321,15 @@ Updating Datasets that were **not** created using the MicroStrategy REST API is 
 
 RStudio and Shiny are trademarks of RStudio, Inc.
 
-[mstr_datasci_comm]: <https://community.microstrategy.com/s/topic/0TO44000000AJ2dGAG/python-r-u108?language=en_US>
-[mstr_rest_demo]: <https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html>
-[mstr_rest_docs]: <https://www2.microstrategy.com/producthelp/Current/RESTSDK/Content/topics/REST_API/REST_API.htm>
-[mstr_help_docs]: <https://www2.microstrategy.com/producthelp/current/MSTR-for-RStudio/Content/mstr_for_rstudio.htm>
-[cors_manual]: <https://www2.microstrategy.com/producthelp/Current/EmbeddingSDK/Content/topics/EnableCORS.htm>
-[same_site_manual]: <https://community.microstrategy.com/s/article/Chrome-v80-Cookie-Behavior-and-the-impact-on-MicroStrategy-Deployments?language=en_US&t=1581355581289>
-[release_notes]: <https://github.com/MicroStrategy/mstrio/blob/master/NEWS.md>
-[logo]: <https://github.com/MicroStrategy/mstrio/blob/master/man/mstr-logo.png?raw=true>
+[cran]: https://cran.r-project.org/web/packages/mstrio/index.html
+[cran_archive]: https://cran.r-project.org/src/contrib/Archive/mstrio/
+[py_github]: https://github.com/MicroStrategy/mstrio-py/
+[r_github]: https://github.com/MicroStrategy/mstrio
+[mstr_datasci_comm]: https://community.microstrategy.com/s/topic/0TO44000000AJ2dGAG/python-r-u108?language=en_US
+[mstr_rest_demo]: https://demo.microstrategy.com/MicroStrategyLibrary/api-docs/index.html
+[mstr_rest_docs]: https://microstrategy.github.io/rest-api-docs/
+[mstr_help_docs]: https://www2.microstrategy.com/producthelp/current/FederatedAnalytics/en-us/Content/mstr_for_rstudio.htm
+[cors_manual]: https://microstrategy.github.io/embedding-sdk-docs/config/#enable-cross-origin-resource-sharing-cors
+[same_site_manual]: https://microstrategy.github.io/embedding-sdk-docs/config/#allow-samesite-cookies
+[release_notes]: https://github.com/MicroStrategy/mstrio/blob/master/NEWS.md
+[logo]: https://github.com/MicroStrategy/mstrio/blob/master/man/mstr-logo.png?raw=true
