@@ -5,6 +5,8 @@
 
 # mstrio: Simple and Secure Access to MicroStrategy Data <!-- omit in toc -->
 
+**MicroStrategy for RStudio and mstrio for R are no longer supported and developed as of March 2024 and have been archived. You can still use the last available version.**
+
 **mstrio** provides a high-level interface for [Python][py_github] and [R][r_github] and is designed to give data scientists and developers simple and secure access to MicroStrategy data. It wraps [MicroStrategy REST APIs][mstr_rest_docs] into simple workflows, allowing users to connect to their MicroStrategy environment, fetch data from cubes and reports, create new datasets, and add new data to existing datasets. And, because it enforces MicroStrategy's user and object security model, you don't need to worry about setting up separate security rules.
 
 With **mstrio**, it's easy to integrate cross-departmental, trustworthy business data in machine learning workflows and enable decision-makers to take action on predictive insights in MicroStrategy Reports, Dossiers, HyperIntelligence Cards, and customized, embedded analytical applications.
