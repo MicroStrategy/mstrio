@@ -1,7 +1,10 @@
 # Changelog
+
+**MicroStrategy for RStudio and mstrio for R are no longer supported and developed as of March 2024 and have been archived. You can still use the last available version.**
+
 ## mstrio 11.3.5.101
 
-# 11.3.5.101 - 2022/03/25
+## 11.3.5.101 - 2022/03/25
 
 ### Minor changes
 
